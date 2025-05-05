@@ -1,0 +1,81 @@
+* {
+  color: white;
+  padding: 0;
+  margin: 0;
+}
+body {
+  background-size: 50%;
+  background: url("assets/bg.png") repeat fixed;
+  margin: 0;
+}
+
+#map-wrapper {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  z-index: -1;
+}
+
+#settings {
+  display: flex;
+  align-items: center;
+  margin: 16px;
+  gap: 32px;
+
+  & button {
+    background-color: black;
+    font-size: larger;
+    padding: 8px;
+    border-radius: 16px;
+  }
+
+  & .radio_group {
+    display: flex;
+    gap: 8px;
+  }
+}
+
+.txt_field {
+  background-color: black;
+}
+
+.row {
+  display: flex;
+  & div {
+    min-width: 15px;
+    align-content: center;
+  }
+}
+
+.fruit {
+  color: pink;
+}
+
+.field {
+  color: greenyellow;
+}
+
+.forest {
+  color: green;
+}
+
+.mountain {
+  color: grey;
+}
+
+.village {
+  color: fuchsia;
+}
+
+.animal {
+  color: blanchedalmond;
+}
+
+.metal {
+  color: gold;
+}
+
+.capital {
+  color: red;
+}

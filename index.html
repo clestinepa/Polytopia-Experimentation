@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="global.css" />
+    <title>Polytopia</title>
+  </head>
+
+  <body>
+    <div id="settings">
+      <button type="button" id="generate">Generate!</button>
+
+      <div class="radio_group">
+        <h4>Map size:</h4>
+        <input type="radio" id="tiny" name="map_size" value="11" checked /><label for="tiny">Tiny</label><br />
+        <input type="radio" id="small" name="map_size" value="14" /><label for="small">Small</label><br />
+        <input type="radio" id="normal" name="map_size" value="16" /><label for="normal">Normal</label><br />
+        <input type="radio" id="large" name="map_size" value="18" /><label for="large">Large</label><br />
+        <input type="radio" id="huge" name="map_size" value="20" /><label for="huge">Huge</label><br />
+        <input type="radio" id="massive" name="map_size" value="30" /><label for="massive">Massive</label>
+      </div>
+    </div>
+
+    <div id="map-wrapper">
+      <canvas id="canvas_html"></canvas>
+    </div>
+
+    <div id="text_display" style="display: none">None</div>
+    <script src="index.js" type="module"></script>
+  </body>
+</html>
