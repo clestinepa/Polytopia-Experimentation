@@ -30,8 +30,7 @@ export class MapGenerator {
       let row = Math.floor(i / this.size);
       let col = i % this.size;
       this.map[i] = new Tile(row, col);
-      if (row === 0 || row === this.size - 1 || col === 0 || this.col === this.size - 1)
-        this.potentialVillages[i] = false; // villages don't spawn next to the map border
+      if (row === 0 || row === this.size - 1 || col === 0 || col === this.size - 1) this.potentialVillages[i] = false; // villages don't spawn next to the map border
     }
     console.timeEnd("Initialization");
   }
