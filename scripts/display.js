@@ -1,4 +1,5 @@
-import { MapGenerator, Tile } from "./generate.js";
+import { MapGenerator } from "/scripts/MapGenerator.js";
+import { Tile } from "/scripts/Tile.js";
 
 const general_terrain = ["crop", "metal", "village", "lighthouse", "lighthouse"];
 const terrain = ["forest", "fruit", "animal", "field", "mountain", "capital"];

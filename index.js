@@ -1,10 +1,10 @@
-import { display_map, get_assets } from "./display.js";
-import { MapGenerator } from "./generate.js";
+import { display_map, get_assets } from "/scripts/display.js";
+import { MapGenerator } from "/scripts/MapGenerator.js";
 
 document.getElementById("generate").addEventListener("click", () => {
-  const map = new MapGenerator();
-  map.generate();
-  display_map(map);
+  const mapGenerator = new MapGenerator();
+  mapGenerator.generate();
+  display_map(mapGenerator);
 });
 
 document.addEventListener("DOMContentLoaded", get_assets);
