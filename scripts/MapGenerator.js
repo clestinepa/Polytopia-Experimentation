@@ -16,44 +16,50 @@ export class MapGenerator {
 
   /** @type {Tile[]} */
   map;
+  /** @type {boolean[]} */
+  potentialVillages;
   /** @type {Size} */
   size;
 
   constructor() {
     console.time("Initialization");
     this.size = parseInt(Array.from(document.getElementsByName("map_size")).find((r) => r.checked).value);
-    this.map = Array.from({ length: this.size ** 2 }, (_, i) => new Tile(i, this.size));
+    this.map = new Array(this.size ** 2);
+    this.potentialVillages = new Array(this.size ** 2).fill(true);
+    for (let i = 0; i < this.size ** 2; i++) {
+      let row = Math.floor(i / this.size);
+      let col = i % this.size;
+      this.map[i] = new Tile(row, col);
+      if (row === 0 || row === this.size - 1 || col === 0 || this.col === this.size - 1)
+        this.potentialVillages[i] = false; // villages don't spawn next to the map border
+    }
     console.timeEnd("Initialization");
   }
 
   /**
    * @param {Tile} center
    * @param {Number} offset
-   * @returns list of tiles in the border
+   * @returns list of the tiles index in the border
    */
-  _getBorderTiles(center, offset) {
-    let borderTiles = [];
-    this.map.forEach((t) => {
+  _getBorderTilesIndex(center, offset) {
+    let borderTilesIndex = [];
+    this.map.forEach((t, i) => {
       if (t.col >= center.col - offset && t.col <= center.col + offset) {
-        if (t.row === center.row - offset) borderTiles.push(t);
-        if (t.row === center.row + offset) borderTiles.push(t);
+        if (t.row === center.row - offset) borderTilesIndex.push(i);
+        if (t.row === center.row + offset) borderTilesIndex.push(i);
       }
       if (t.row > center.row - offset && t.row < center.row + offset) {
-        if (t.col === center.col - offset) borderTiles.push(t);
-        if (t.col === center.col + offset) borderTiles.push(t);
+        if (t.col === center.col - offset) borderTilesIndex.push(i);
+        if (t.col === center.col + offset) borderTilesIndex.push(i);
       }
     });
-    return borderTiles;
+    return borderTilesIndex;
   }
 
-  /**
-   * @param {(tile: Tile) => boolean} condition
-   * @returns index of a random Tile with the condition
-   */
-  _getRandomTileIndex(condition) {
+  _getRandomVillageIndex() {
     let potentialTiles = [];
-    this.map.forEach((tile, index) => {
-      if (condition(tile)) potentialTiles.push(index);
+    this.potentialVillages.forEach((isPotential, index) => {
+      if (isPotential) potentialTiles.push(index);
     });
     return potentialTiles[Math.floor(Math.random() * potentialTiles.length)];
   }
@@ -65,8 +71,12 @@ export class MapGenerator {
     let max = this.size - 3;
     let index = randomInt(min, max) * this.size + randomInt(min, max);
     this.map[index].above = "capital";
-    this._getBorderTiles(this.map[index], 2).forEach((tile) => (tile.isPotentialVillage = false));
-    this._getBorderTiles(this.map[index], 1).forEach((tile) => (tile.territory = "initial"));
+    this.potentialVillages[index] = false;
+    this._getBorderTilesIndex(this.map[index], 2).forEach((i) => (this.potentialVillages[i] = false));
+    this._getBorderTilesIndex(this.map[index], 1).forEach((i) => {
+      this.potentialVillages[i] = false;
+      this.map[i].territory = "initial";
+    });
     console.timeEnd("Capital position");
   }
 
@@ -83,11 +93,14 @@ export class MapGenerator {
 
   _generateBiome() {
     console.time("Biome generation");
-    for (let cell = 0; cell < this.size ** 2; cell++) {
-      if (!this.map[cell].above) {
+    for (let i = 0; i < this.size ** 2; i++) {
+      if (!this.map[i].above) {
         let rand = Math.random(); // 0 (---forest---)--field--(-mountain-) 1
-        if (rand < MapGenerator.general_probs["forest"]) this.map[cell].biome = "forest";
-        else if (rand > 1 - MapGenerator.general_probs["mountain"]) this.map[cell].biome = "mountain";
+        if (rand < MapGenerator.general_probs["forest"]) this.map[i].biome = "forest";
+        else if (rand > 1 - MapGenerator.general_probs["mountain"]) {
+          this.map[i].biome = "mountain";
+          this.potentialVillages[i] = false;
+        }
       }
     }
     console.timeEnd("Biome generation");
@@ -95,11 +108,15 @@ export class MapGenerator {
 
   _generateVillage() {
     console.time("Village generation");
-    while (this.map.filter((tile) => tile.isPotentialVillage).length !== 0) {
-      let new_village_index = this._getRandomTileIndex((tile) => tile.isPotentialVillage);
+    while (this.potentialVillages.indexOf(true) !== -1) {
+      let new_village_index = this._getRandomVillageIndex();
       this.map[new_village_index].above = "village";
-      this._getBorderTiles(this.map[new_village_index], 2).forEach((tile) => (tile.isPotentialVillage = false));
-      this._getBorderTiles(this.map[new_village_index], 1).forEach((tile) => (tile.territory = "initial"));
+      this.potentialVillages[new_village_index] = false;
+      this._getBorderTilesIndex(this.map[new_village_index], 2).forEach((i) => (this.potentialVillages[i] = false));
+      this._getBorderTilesIndex(this.map[new_village_index], 1).forEach((i) => {
+        this.potentialVillages[i] = false;
+        this.map[i].territory = "initial";
+      });
     }
     console.timeEnd("Village generation");
   }

@@ -43,11 +43,12 @@ export function display_map(map) {
     tile_height = (default_image.height * tile_width) / default_image.width;
   }
 
-  console.log(tile_width, tile_height);
-
   for (let tile of map.map) {
-    let x = canvas_html.width / 2 - tile_width / 2 + (tile.x * tile_width) / 2;
-    let y = canvas_html.height / 2 - tile_width / 2 + (tile.y * (tile_height * Tile.ratio_ground)) / 2;
+    let x = canvas_html.width / 2 - tile_width / 2 + ((tile.col - tile.row) * tile_width) / 2;
+    let y =
+      canvas_html.height / 2 -
+      tile_width / 2 +
+      ((tile.col + tile.row - (map.size - 1)) * (tile_height * Tile.ratio_ground)) / 2;
     let biome = tile.biome;
     let above = tile.above;
 
