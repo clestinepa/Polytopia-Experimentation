@@ -5,7 +5,7 @@ import { MapGenerator } from "./scripts/map/MapGenerator.js";
 /** @type {MapGenerator} */
 let mapGeneration;
 
-/** @type {MapCalculator} */
+/** @type {MapExploiter} */
 let mapExploit;
 
 document.getElementById("generate").addEventListener("click", () => {
@@ -14,12 +14,21 @@ document.getElementById("generate").addEventListener("click", () => {
   mapGeneration.generate();
   display_map(mapGeneration);
 
-  document.getElementById("calculate").disabled = false;
+  document.getElementById("start").disabled = false;
 });
 
-document.getElementById("calculate").addEventListener("click", () => {
+document.getElementById("start").addEventListener("click", () => {
+  document.getElementById("start").style.display = "none";
+  document.getElementById("prev").style.display = "block";
+  document.getElementById("next").style.display = "block";
+  document.getElementById("information").style.display = "block";
+
   mapExploit = new MapExploiter(mapGeneration);
-  mapExploit.exploit();
+  mapExploit.start();
+});
+
+document.getElementById("next").addEventListener("click", () => {
+  mapExploit.next();
   display_map(mapExploit);
 });
 

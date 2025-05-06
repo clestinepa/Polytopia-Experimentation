@@ -8,9 +8,8 @@
   </head>
 
   <body>
-    <div id="settings">
+    <div class="overlay" id="settings">
       <button id="generate">Generate</button>
-      <button id="calculate" disabled>Calculate Mountain</button>
 
       <div class="radio_group">
         <h4>Map size:</h4>
@@ -22,13 +21,21 @@
         <input type="radio" id="massive" name="map_size" value="30" /><label for="massive">Massive</label>
       </div>
     </div>
-    <div id="information">
+    <div id="information" style="display: none">
+      <h3>Turn: <span id="turn"></span></h3>
       <h4>Population: <span id="populations"></span></h4>
+      <h4>Stars (+<span id="stars_production"></span>): <span id="stars"></span></h4>
     </div>
     <div id="text_display" style="display: none">None</div>
 
     <div id="map-wrapper">
       <canvas id="canvas_html"></canvas>
+    </div>
+
+    <div class="overlay" id="turns">
+      <button id="start" disabled>Start</button>
+      <button id="prev" disabled style="display: none">Prev</button>
+      <button id="next" style="display: none">Next</button>
     </div>
 
     <script src="index.js" type="module"></script>

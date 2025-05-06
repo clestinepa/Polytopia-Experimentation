@@ -17,23 +17,34 @@ body {
   z-index: -1;
 }
 
-#settings {
+button {
+  background-color: black;
+  font-size: larger;
+  padding: 8px;
+  border-radius: 16px;
+  &:disabled {
+    color: gray;
+  }
+}
+
+.overlay {
   display: flex;
   align-items: center;
   margin: 16px;
   gap: 32px;
-
-  & button {
-    background-color: black;
-    font-size: larger;
-    padding: 8px;
-    border-radius: 16px;
-  }
-
+}
+#settings {
   & .radio_group {
     display: flex;
     gap: 8px;
   }
+}
+
+#turns {
+  position: fixed;
+  bottom: 0;
+  transform: translateX(-50%);
+  left: 50%;
 }
 
 .txt_field {

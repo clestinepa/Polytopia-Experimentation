@@ -1,7 +1,19 @@
 import { Map } from "./map/Map.js";
 import { MapDisplay } from "./map/MapDisplay.js";
 
-const images = ["crop", "metal", "village", "lighthouse", "lighthouse", "mine", "mountain temple"];
+const images = [
+  "crop",
+  "metal",
+  "village",
+  "lighthouse",
+  "lighthouse",
+  "farm",
+  "mine",
+  "lumber hut",
+  "mountain temple",
+  "forest temple",
+  "temple",
+];
 const tribe_images = ["forest", "fruit", "animal", "field", "mountain", "capital"];
 
 let assets = [];

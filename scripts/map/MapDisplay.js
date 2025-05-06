@@ -7,11 +7,13 @@ export class MapDisplay extends Map {
 
   static offsetY = {
     //biome
-    forest: 0.2,
-    mountain: 0.2,
+    forest: 0.1,
+    mountain: 0.25,
     capital: 0.3,
     lighthouse: 0.5,
-    //resource
-    metal: 0.05,
+    //building
+    farm: 0.05,
+    "mountain temple": 0.25,
+    "forest temple": 0.1,
   };
 }

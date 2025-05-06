@@ -13,6 +13,19 @@ export function randomInt(min, max) {
 }
 
 /**
+ * @param {any[]} array
+ * @param {(any | undefined) => boolean} condition
+ * @returns {Number}
+ */
+export function getRandomIndex(array, condition = () => true) {
+  let potentialArray = [];
+  array.forEach((el, index) => {
+    if (condition(el)) potentialArray.push(index);
+  });
+  return potentialArray[Math.floor(Math.random() * potentialArray.length)];
+}
+
+/**
  * @param {Map} map
  * @param {(tile: Tile) => string} className
  * @param {(tile: Tile) => string} text

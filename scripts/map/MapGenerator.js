@@ -1,6 +1,6 @@
 import { Map } from "./Map.js";
 import { TileGenerator } from "./TileGenerator.js";
-import { randomInt } from "../utils.js";
+import { getRandomIndex, randomInt } from "../utils.js";
 
 export class MapGenerator extends Map {
   static probs = {
@@ -25,17 +25,6 @@ export class MapGenerator extends Map {
     this.map = Array.from({ length: this.size ** 2 }, (_, i) => new TileGenerator(i, this.size));
   }
 
-  /**
-   * @returns {Number}
-   */
-  _getRandomVillageIndex() {
-    let potentialTiles = [];
-    this.#potentialVillages.forEach((isPotential, index) => {
-      if (isPotential) potentialTiles.push(index);
-    });
-    return potentialTiles[Math.floor(Math.random() * potentialTiles.length)];
-  }
-
   _initialization() {
     this.#potentialVillages = new Array(this.size ** 2).fill(true);
     for (let i = 0; i < this.size ** 2; i++) {
@@ -55,7 +44,7 @@ export class MapGenerator extends Map {
     super.getBorderTilesIndex(this.map[index], 2).forEach((i) => (this.#potentialVillages[i] = false));
     super.getBorderTilesIndex(this.map[index], 1).forEach((i) => {
       this.#potentialVillages[i] = false;
-      this.map[i].territory = "initial";
+      this.map[i].isCapitalCity = true;
     });
   }
 
@@ -81,7 +70,7 @@ export class MapGenerator extends Map {
 
   _generateVillage() {
     while (this.#potentialVillages.indexOf(true) !== -1) {
-      let index = this._getRandomVillageIndex();
+      let index = getRandomIndex(this.#potentialVillages, (isPotential) => isPotential);
       this.map[index].biome = "village";
       this.#potentialVillages[index] = false;
       super.getBorderTilesIndex(this.map[index], 2).forEach((i) => (this.#potentialVillages[i] = false));
