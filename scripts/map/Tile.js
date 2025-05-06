@@ -4,13 +4,6 @@ export class Tile {
   /** @type {Number} */
   #col;
 
-  /** @type {Biome} */
-  #biome = "field";
-  /** @type {Resource} */
-  #resource = null;
-  /** @type {Territory} */
-  #territory = "virgin";
-
   /**
    * @param {Number} row
    * @param {Number} col
@@ -25,14 +18,5 @@ export class Tile {
   }
   get col() {
     return this.#col;
-  }
-  get biome() {
-    return this.#biome;
-  }
-  get resource() {
-    return this.#resource;
-  }
-  get territory() {
-    return this.#territory;
   }
 }

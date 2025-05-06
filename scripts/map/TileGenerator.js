@@ -9,11 +9,23 @@ export class TileGenerator extends Tile {
   #territory = "virgin";
 
   /**
-   * @param {Number} row
-   * @param {Number} col
+   * @param {Number} i
+   * @param {Number} size
    */
-  constructor(row, col) {
+  constructor(i, size) {
+    let row = Math.floor(i / size);
+    let col = i % size;
     super(row, col);
+  }
+
+  get biome() {
+    return this.#biome;
+  }
+  get resource() {
+    return this.#resource;
+  }
+  get territory() {
+    return this.#territory;
   }
 
   /**
@@ -21,10 +33,7 @@ export class TileGenerator extends Tile {
    */
   set biome(value) {
     this.#biome = ["capital", "lighthouse", "village"].includes(this.#biome) ? this.#biome : value;
-    if (this.#biome === "village" || this.#biome === "capital") this.territory = "city";
-  }
-  get biome() {
-    return this.#biome;
+    if (this.#biome === "capital") this.territory = "city";
   }
   /**
    * @param {Resource} value
@@ -32,16 +41,10 @@ export class TileGenerator extends Tile {
   set resource(value) {
     this.#resource = value;
   }
-  get resource() {
-    return this.#resource;
-  }
   /**
    * @param {Territory} value
    */
   set territory(value) {
     this.#territory = value;
-  }
-  get territory() {
-    return this.#territory;
   }
 }

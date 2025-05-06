@@ -1,8 +1,8 @@
 import { Map } from "./map/Map.js";
 import { MapDisplay } from "./map/MapDisplay.js";
 
-const terrains = ["crop", "metal", "village", "lighthouse", "lighthouse"];
-const tribe_terrains = ["forest", "fruit", "animal", "field", "mountain", "capital"];
+const images = ["crop", "metal", "village", "lighthouse", "lighthouse", "mine", "mountain temple"];
+const tribe_images = ["forest", "fruit", "animal", "field", "mountain", "capital"];
 
 let assets = [];
 
@@ -13,10 +13,8 @@ function get_image(src) {
 }
 
 export let get_assets = new Promise((resolve) => {
-  for (let terrain of terrains) assets[terrain] = get_image(`/assets/${terrain}.png`);
-
-  for (let tribe_terrain of tribe_terrains)
-    assets[tribe_terrain] = get_image(`/assets/${Map.tribe}/${Map.tribe} ${tribe_terrain}.png`);
+  for (let img of images) assets[img] = get_image(`/assets/${img}.png`);
+  for (let img of tribe_images) assets[img] = get_image(`/assets/${Map.tribe}/${Map.tribe} ${img}.png`);
 
   resolve();
 });
@@ -55,6 +53,7 @@ export function display_map(map) {
     draw(assets["field"]);
     if (tile.biome !== "field") draw(assets[tile.biome], MapDisplay.offsetY[tile.biome]);
 
-    if (tile.resource) draw(assets[tile.resource], MapDisplay.offsetY[tile.resource]);
+    if (tile.resource && !tile.building) draw(assets[tile.resource], MapDisplay.offsetY[tile.resource]);
+    if (tile.building) draw(assets[tile.building], MapDisplay.offsetY[tile.building]);
   }
 }

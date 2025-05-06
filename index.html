@@ -9,7 +9,8 @@
 
   <body>
     <div id="settings">
-      <button type="button" id="generate">Generate!</button>
+      <button id="generate">Generate</button>
+      <button id="calculate" disabled>Calculate Mountain</button>
 
       <div class="radio_group">
         <h4>Map size:</h4>
@@ -21,12 +22,15 @@
         <input type="radio" id="massive" name="map_size" value="30" /><label for="massive">Massive</label>
       </div>
     </div>
+    <div id="information">
+      <h4>Population: <span id="populations"></span></h4>
+    </div>
+    <div id="text_display" style="display: none">None</div>
 
     <div id="map-wrapper">
       <canvas id="canvas_html"></canvas>
     </div>
 
-    <div id="text_display" style="display: none">None</div>
     <script src="index.js" type="module"></script>
   </body>
 </html>

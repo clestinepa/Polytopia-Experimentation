@@ -22,6 +22,7 @@ export class MapGenerator extends Map {
    */
   constructor(size) {
     super(size);
+    this.map = Array.from({ length: this.size ** 2 }, (_, i) => new TileGenerator(i, this.size));
   }
 
   /**
@@ -36,12 +37,10 @@ export class MapGenerator extends Map {
   }
 
   _initialization() {
-    this.map = new Array(this.size ** 2);
     this.#potentialVillages = new Array(this.size ** 2).fill(true);
     for (let i = 0; i < this.size ** 2; i++) {
       let row = Math.floor(i / this.size);
       let col = i % this.size;
-      this.map[i] = new TileGenerator(row, col);
       if (row === 0 || row === this.size - 1 || col === 0 || col === this.size - 1) this.#potentialVillages[i] = false; // villages cannot spawn next to the map border
     }
   }
@@ -86,10 +85,7 @@ export class MapGenerator extends Map {
       this.map[index].biome = "village";
       this.#potentialVillages[index] = false;
       super.getBorderTilesIndex(this.map[index], 2).forEach((i) => (this.#potentialVillages[i] = false));
-      super.getBorderTilesIndex(this.map[index], 1).forEach((i) => {
-        this.#potentialVillages[i] = false;
-        this.map[i].territory = "initial";
-      });
+      super.getBorderTilesIndex(this.map[index], 1).forEach((i) => (this.#potentialVillages[i] = false));
     }
   }
 
