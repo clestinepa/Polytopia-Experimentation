@@ -5,6 +5,8 @@ export class TileGenerator extends Tile {
   #biome = "field";
   /** @type {Resource} */
   resource = null;
+  /** @type {Territory} */
+  territory = "none";
   /** @type {boolean} */
   #isCapitalCity = false;
   /** @type {boolean} */

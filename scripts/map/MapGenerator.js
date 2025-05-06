@@ -1,18 +1,11 @@
 import { Map } from "./Map.js";
 import { TileGenerator } from "./TileGenerator.js";
 import { getRandomIndex, randomInt } from "../utils.js";
+import { ProbsGeneration } from "./ProbsGeneration.js";
 
 export class MapGenerator extends Map {
-  static probs = {
-    //biome
-    mountain: 0.15 * 1.5,
-    forest: 0.4,
-    //resource
-    fruit: 0.5,
-    crop: 0.5 * 0.1,
-    animal: 0.5,
-    metal: 0.5,
-  };
+  /** @type {ProbsGeneration} */
+  probs;
 
   /** @type {boolean[]} */
   #potentialVillages;
@@ -22,6 +15,7 @@ export class MapGenerator extends Map {
    */
   constructor(size) {
     super(size);
+    this.probs = new ProbsGeneration();
     this.map = Array.from({ length: this.size ** 2 }, (_, i) => new TileGenerator(i, this.size));
   }
 
@@ -34,23 +28,6 @@ export class MapGenerator extends Map {
     }
   }
 
-  _generateCapital() {
-    //cannot be to close from the edge
-    let min = 2;
-    let max = this.size - 3;
-    let index = randomInt(min, max) * this.size + randomInt(min, max);
-    this.map[index].biome = "capital";
-    this.#potentialVillages[index] = false;
-    super.getBorderTilesIndex(this.map[index], 2).forEach((i) => {
-      this.#potentialVillages[i] = false;
-      this.map[i].known = true;
-    });
-    super.getBorderTilesIndex(this.map[index], 1).forEach((i) => {
-      this.#potentialVillages[i] = false;
-      this.map[i].isCapitalCity = true;
-    });
-  }
-
   _generateLighthouse() {
     [
       0 * this.size + 0,
@@ -60,11 +37,30 @@ export class MapGenerator extends Map {
     ].forEach((corner) => (this.map[corner].biome = "lighthouse"));
   }
 
+  _generateCapital() {
+    //cannot be to close from the edge
+    let min = 2;
+    let max = this.size - 3;
+    let index = randomInt(min, max) * this.size + randomInt(min, max);
+    this.map[index].biome = "capital";
+    this.#potentialVillages[index] = false;
+    super.getBorderTilesIndex(this.map[index], 2).forEach((i) => {
+      this.map[i].territory = "outer";
+      this.#potentialVillages[i] = false;
+      this.map[i].known = true;
+    });
+    super.getBorderTilesIndex(this.map[index], 1).forEach((i) => {
+      this.map[i].territory = "inner";
+      this.#potentialVillages[i] = false;
+      this.map[i].isCapitalCity = true;
+    });
+  }
+
   _generateBiome() {
     this.map.forEach((tile, i) => {
-      let rand = Math.random(); // 0 (---forest---)--field--(-mountain-) 1
-      if (rand < MapGenerator.probs["forest"]) tile.biome = "forest";
-      else if (rand > 1 - MapGenerator.probs["mountain"]) {
+      let rand = Math.random(); // 0 forest field mountain 1
+      if (rand < this.probs.forest.prob) tile.biome = "forest";
+      else if (rand > 1 - this.probs.mountain.prob) {
         tile.biome = "mountain";
         this.#potentialVillages[i] = false;
       }
@@ -76,25 +72,33 @@ export class MapGenerator extends Map {
       let index = getRandomIndex(this.#potentialVillages, (isPotential) => isPotential);
       this.map[index].biome = "village";
       this.#potentialVillages[index] = false;
-      super.getBorderTilesIndex(this.map[index], 2).forEach((i) => (this.#potentialVillages[i] = false));
-      super.getBorderTilesIndex(this.map[index], 1).forEach((i) => (this.#potentialVillages[i] = false));
+      super.getBorderTilesIndex(this.map[index], 2).forEach((i) => {
+        this.map[i].territory = "outer";
+        this.#potentialVillages[i] = false;
+      });
+      super.getBorderTilesIndex(this.map[index], 1).forEach((i) => {
+        this.map[i].territory = "inner";
+        this.#potentialVillages[i] = false;
+      });
     }
   }
 
   _generateResources() {
     for (let tile of this.map) {
-      switch (tile.biome) {
-        case "field":
-          let rand = Math.random(); // 0 (---fruit---)--field--(-crop-) 1
-          if (rand < MapGenerator.probs["fruit"]) tile.resource = "fruit";
-          else if (rand > 1 - MapGenerator.probs["crop"]) tile.resource = "crop";
-          break;
-        case "forest":
-          if (Math.random() < MapGenerator.probs["animal"]) tile.resource = "animal";
-          break;
-        case "mountain":
-          if (Math.random() < MapGenerator.probs["metal"]) tile.resource = "metal";
-          break;
+      if (tile.territory !== "none") {
+        switch (tile.biome) {
+          case "field":
+            let rand = Math.random(); // 0 fruit field crop 1
+            if (rand < this.probs.field[tile.territory].fruit) tile.resource = "fruit";
+            else if (rand > 1 - this.probs.field[tile.territory].crop) tile.resource = "crop";
+            break;
+          case "forest":
+            if (Math.random() < this.probs.forest[tile.territory].animal) tile.resource = "animal";
+            break;
+          case "mountain":
+            if (Math.random() < this.probs.mountain[tile.territory].metal) tile.resource = "metal";
+            break;
+        }
       }
     }
   }

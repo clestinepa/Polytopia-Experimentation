@@ -58,10 +58,12 @@ export function display_map(map) {
   let canvas = canvas_html.getContext("2d");
 
   let default_image = assets[MapDisplay.default_asset];
-  let tile_height = (canvas_html.height - MapDisplay.canvas_margin * 2) / (map.size * MapDisplay.ratio_ground);
+  const max_height = canvas_html.height - MapDisplay.canvas_margin * 2;
+  const max_width = canvas_html.width - MapDisplay.canvas_margin * 2;
+  let tile_height = max_height / (map.size * MapDisplay.ratio_ground);
   let tile_width = (default_image.width * tile_height) / default_image.height;
-  if (canvas_html.width < canvas_html.height) {
-    tile_width = (canvas_html.width - MapDisplay.canvas_margin * 2) / map.size;
+  if (tile_width * map.size > max_width) {
+    tile_width = max_width / map.size;
     tile_height = (default_image.height * tile_width) / default_image.width;
   }
 
@@ -86,13 +88,13 @@ export function display_map(map) {
     x = get_x(tile);
     y = get_y(tile);
 
-    if (tile.known) {
+    if (map.actions && !tile.known) {
+      draw(assets["clouds"]); //clouds when start exploit
+    } else {
       draw(assets["field"]);
       if (tile.biome !== "field") draw(assets[tile.biome], MapDisplay.offsetY[tile.biome]);
       if (tile.resource && !tile.building) draw(assets[tile.resource], MapDisplay.offsetY[tile.resource]);
       if (tile.building) draw(assets[tile.building], MapDisplay.offsetY[tile.building]);
-    } else {
-      draw(assets["clouds"]);
     }
   }
 
