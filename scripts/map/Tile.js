@@ -1,6 +1,4 @@
 export class Tile {
-  static ratio_ground = 0.63;
-
   /** @type {Number} */
   row;
   /** @type {Number} */
@@ -8,14 +6,14 @@ export class Tile {
 
   /** @type {Biome} */
   #biome = "field";
-  /** @type {Above} */
-  #above = null;
+  /** @type {Resource} */
+  #resource = null;
   /** @type {Territory} */
   #territory = "virgin";
 
   /**
-   * @param {Number} i
-   * @param {Number} size
+   * @param {Number} row
+   * @param {Number} col
    */
   constructor(row, col) {
     this.row = row;
@@ -26,7 +24,8 @@ export class Tile {
    * @param {Biome} value
    */
   set biome(value) {
-    this.#biome = value;
+    this.#biome = ["capital", "lighthouse", "village"].includes(this.#biome) ? this.#biome : value;
+    if (this.#biome === "village" || this.#biome === "capital") this.#territory = "city";
   }
   get biome() {
     return this.#biome;
@@ -35,15 +34,11 @@ export class Tile {
   /**
    * @param {Above} value
    */
-  set above(value) {
-    if (value === "village" || value === "capital") {
-      this.#biome = "field";
-      this.#territory = "city";
-    }
-    this.#above = ["capital", "lighthouse", "village"].includes(this.#above) ? this.#above : value;
+  set resource(value) {
+    this.#resource = value;
   }
-  get above() {
-    return this.#above;
+  get resource() {
+    return this.#resource;
   }
 
   /**

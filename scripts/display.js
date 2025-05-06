@@ -1,8 +1,8 @@
-import { MapGenerator } from "/scripts/MapGenerator.js";
-import { Tile } from "/scripts/Tile.js";
+import { Map } from "./map/Map.js";
+import { MapDisplay } from "./map/MapDisplay.js";
 
-const general_terrain = ["crop", "metal", "village", "lighthouse", "lighthouse"];
-const terrain = ["forest", "fruit", "animal", "field", "mountain", "capital"];
+const terrains = ["crop", "metal", "village", "lighthouse", "lighthouse"];
+const tribe_terrains = ["forest", "fruit", "animal", "field", "mountain", "capital"];
 
 let assets = [];
 
@@ -13,19 +13,16 @@ function get_image(src) {
 }
 
 export let get_assets = new Promise((resolve) => {
-  for (let g_terr of general_terrain) {
-    assets[g_terr] = get_image("assets/" + g_terr + ".png");
-  }
-  for (let terr of terrain) {
-    assets[terr] = get_image("assets/" + MapGenerator.tribe + "/" + MapGenerator.tribe + " " + terr + ".png");
-  }
+  for (let terrain of terrains) assets[terrain] = get_image(`/assets/${terrain}.png`);
+
+  for (let tribe_terrain of tribe_terrains)
+    assets[tribe_terrain] = get_image(`/assets/${Map.tribe}/${Map.tribe} ${tribe_terrain}.png`);
 
   resolve();
 });
 
 /**
- *
- * @param {MapGenerator} map
+ * @param {Map} map
  */
 export function display_map(map) {
   /** @type {HTMLCanvasElement} */
@@ -34,37 +31,30 @@ export function display_map(map) {
   canvas_html.height = window.innerHeight;
   let canvas = canvas_html.getContext("2d");
 
-  const margin = 64;
-  let default_image = assets["field"];
-  let tile_height = (canvas_html.height - margin * 2) / (map.size * Tile.ratio_ground);
+  let default_image = assets[MapDisplay.default_asset];
+  let tile_height = (canvas_html.height - MapDisplay.canvas_margin * 2) / (map.size * MapDisplay.ratio_ground);
   let tile_width = (default_image.width * tile_height) / default_image.height;
   if (canvas_html.width < canvas_html.height) {
-    tile_width = (canvas_html.width - margin * 2) / map.size;
+    tile_width = (canvas_html.width - MapDisplay.canvas_margin * 2) / map.size;
     tile_height = (default_image.height * tile_width) / default_image.width;
   }
 
   for (let tile of map.map) {
-    let x = canvas_html.width / 2 - tile_width / 2 + ((tile.col - tile.row) * tile_width) / 2;
-    let y =
-      canvas_html.height / 2 -
-      tile_width / 2 +
-      ((tile.col + tile.row - (map.size - 1)) * (tile_height * Tile.ratio_ground)) / 2;
-    let biome = tile.biome;
-    let above = tile.above;
+    let posX = tile.col - tile.row;
+    let deltaX = (posX * tile_width) / 2;
+    let posY = tile.col + tile.row - (map.size - 1);
+    let deltaY = (posY * (tile_height * MapDisplay.ratio_ground)) / 2;
 
-    function draw(image, lowering = 0) {
-      canvas.drawImage(image, x, y - lowering * tile_height, tile_width, (image.height * tile_width) / image.width);
+    let x = canvas_html.width / 2 - tile_width / 2 + deltaX;
+    let y = canvas_html.height / 2 - tile_height / 2 + deltaY;
+
+    function draw(image, offsetY = 0) {
+      canvas.drawImage(image, x, y - offsetY * tile_height, tile_width, (image.height * tile_width) / image.width);
     }
 
     draw(assets["field"]);
-    if (biome !== "field") draw(assets[biome], 0.2);
+    if (tile.biome !== "field") draw(assets[tile.biome], MapDisplay.offsetY[tile.biome]);
 
-    if (above) {
-      let lowering = 0;
-      if (above === "capital") lowering = 0.3;
-      else if (above === "lighthouse") lowering = 0.5;
-      else if (above === "metal") lowering = 0.1;
-      draw(assets[above], lowering);
-    }
+    if (tile.resource) draw(assets[tile.resource], MapDisplay.offsetY[tile.resource]);
   }
 }
