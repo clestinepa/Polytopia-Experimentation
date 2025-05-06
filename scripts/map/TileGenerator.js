@@ -4,10 +4,11 @@ export class TileGenerator extends Tile {
   /** @type {Biome} */
   #biome = "field";
   /** @type {Resource} */
-  #resource = null;
-
+  resource = null;
   /** @type {boolean} */
   #isCapitalCity = false;
+  /** @type {boolean} */
+  known = false;
 
   /**
    * @param {Number} i
@@ -22,9 +23,6 @@ export class TileGenerator extends Tile {
   get biome() {
     return this.#biome;
   }
-  get resource() {
-    return this.#resource;
-  }
   get isCapitalCity() {
     return this.#isCapitalCity;
   }
@@ -37,15 +35,10 @@ export class TileGenerator extends Tile {
     if (this.#biome === "capital") this.isCapitalCity = true;
   }
   /**
-   * @param {Resource} value
-   */
-  set resource(value) {
-    this.#resource = value;
-  }
-  /**
    * @param {Boolean} value
    */
   set isCapitalCity(value) {
     this.#isCapitalCity = value;
+    if (value) this.known = value;
   }
 }

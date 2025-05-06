@@ -41,7 +41,10 @@ export class MapGenerator extends Map {
     let index = randomInt(min, max) * this.size + randomInt(min, max);
     this.map[index].biome = "capital";
     this.#potentialVillages[index] = false;
-    super.getBorderTilesIndex(this.map[index], 2).forEach((i) => (this.#potentialVillages[i] = false));
+    super.getBorderTilesIndex(this.map[index], 2).forEach((i) => {
+      this.#potentialVillages[i] = false;
+      this.map[i].known = true;
+    });
     super.getBorderTilesIndex(this.map[index], 1).forEach((i) => {
       this.#potentialVillages[i] = false;
       this.map[i].isCapitalCity = true;
