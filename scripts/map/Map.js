@@ -1,3 +1,4 @@
+import "../types.js";
 import { Tile } from "./Tile.js";
 
 export class Map {
@@ -8,6 +9,9 @@ export class Map {
   /** @type {Size} */
   size;
 
+  /**
+   * @param {Size} size
+   */
   constructor(size) {
     this.size = size;
   }

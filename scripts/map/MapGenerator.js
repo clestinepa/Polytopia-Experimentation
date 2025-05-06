@@ -1,6 +1,6 @@
 import { Map } from "./Map.js";
-import { Tile } from "./Tile.js";
-import { printMap, randomInt } from "../utils.js";
+import { TileGenerator } from "./TileGenerator.js";
+import { randomInt } from "../utils.js";
 
 export class MapGenerator extends Map {
   static probs = {
@@ -17,6 +17,9 @@ export class MapGenerator extends Map {
   /** @type {boolean[]} */
   #potentialVillages;
 
+  /**
+   * @param {Size} size
+   */
   constructor(size) {
     super(size);
   }
@@ -33,20 +36,17 @@ export class MapGenerator extends Map {
   }
 
   _initialization() {
-    console.time("Initialization");
     this.map = new Array(this.size ** 2);
     this.#potentialVillages = new Array(this.size ** 2).fill(true);
     for (let i = 0; i < this.size ** 2; i++) {
       let row = Math.floor(i / this.size);
       let col = i % this.size;
-      this.map[i] = new Tile(row, col);
+      this.map[i] = new TileGenerator(row, col);
       if (row === 0 || row === this.size - 1 || col === 0 || col === this.size - 1) this.#potentialVillages[i] = false; // villages cannot spawn next to the map border
     }
-    console.timeEnd("Initialization");
   }
 
   _generateCapital() {
-    console.time("Capital position");
     //cannot be to close from the edge
     let min = 2;
     let max = this.size - 3;
@@ -58,22 +58,18 @@ export class MapGenerator extends Map {
       this.#potentialVillages[i] = false;
       this.map[i].territory = "initial";
     });
-    console.timeEnd("Capital position");
   }
 
   _generateLighthouse() {
-    console.time("Lighthouse generation");
     [
       0 * this.size + 0,
       0 * this.size + (this.size - 1),
       (this.size - 1) * this.size + 0,
       (this.size - 1) * this.size + (this.size - 1),
     ].forEach((corner) => (this.map[corner].biome = "lighthouse"));
-    console.timeEnd("Lighthouse generation");
   }
 
   _generateBiome() {
-    console.time("Biome generation");
     this.map.forEach((tile, i) => {
       let rand = Math.random(); // 0 (---forest---)--field--(-mountain-) 1
       if (rand < MapGenerator.probs["forest"]) tile.biome = "forest";
@@ -82,11 +78,9 @@ export class MapGenerator extends Map {
         this.#potentialVillages[i] = false;
       }
     });
-    console.timeEnd("Biome generation");
   }
 
   _generateVillage() {
-    console.time("Village generation");
     while (this.#potentialVillages.indexOf(true) !== -1) {
       let index = this._getRandomVillageIndex();
       this.map[index].biome = "village";
@@ -97,11 +91,9 @@ export class MapGenerator extends Map {
         this.map[i].territory = "initial";
       });
     }
-    console.timeEnd("Village generation");
   }
 
   _generateResources() {
-    console.time("Resource generation");
     for (let tile of this.map) {
       switch (tile.biome) {
         case "field":
@@ -117,20 +109,16 @@ export class MapGenerator extends Map {
           break;
       }
     }
-    console.timeEnd("Resource generation");
   }
 
   generate() {
+    console.time("Generation");
     this._initialization();
     this._generateCapital();
     this._generateLighthouse();
     this._generateBiome();
     this._generateVillage();
     this._generateResources();
-    printMap(
-      this,
-      (tile) => tile.resource ?? tile.biome,
-      (tile) => (tile.resource ? tile.resource[0] : tile.biome[0])
-    );
+    console.timeEnd("Generation");
   }
 }
