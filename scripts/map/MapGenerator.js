@@ -3,6 +3,13 @@ import { TileGenerator } from "./TileGenerator.js";
 import { getRandomIndex, randomInt } from "../utils.js";
 import { ProbsGeneration } from "./ProbsGeneration.js";
 
+/** NEXT STEPS :
+ *  - All tribes are guaranteed to have at least two identical resources in their capital (fruit, animal).
+ *  - Terrain will always be generated in accordance with the percentage rates
+ *      for example, Luxidoor will always have 48% of their biome (or as close as possible) as field tiles.
+ *      => do not generate tile alone but all tiles together
+ */
+
 export class MapGenerator extends Map {
   /** @type {ProbsGeneration} */
   probs;

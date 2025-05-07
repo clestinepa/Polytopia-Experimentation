@@ -29,16 +29,10 @@ export class TileGenerator extends Tile {
     return this.#isCapitalCity;
   }
 
-  /**
-   * @param {Biome} value
-   */
   set biome(value) {
     this.#biome = ["capital", "lighthouse", "village"].includes(this.#biome) ? this.#biome : value;
     if (this.#biome === "capital") this.isCapitalCity = true;
   }
-  /**
-   * @param {Boolean} value
-   */
   set isCapitalCity(value) {
     this.#isCapitalCity = value;
     if (value) this.known = value;
