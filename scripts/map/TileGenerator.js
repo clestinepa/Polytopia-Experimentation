@@ -3,7 +3,7 @@ import { Tile } from "./Tile.js";
 export class TileGenerator extends Tile {
   /** @type {Biome} */
   #biome = "field";
-  /** @type {Resource} */
+  /** @type {Resource | null} */
   resource = null;
   /** @type {Territory} */
   territory = "none";

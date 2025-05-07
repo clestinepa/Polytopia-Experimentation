@@ -1,9 +1,15 @@
 /**
  * @typedef {11 | 14 | 16 | 18 | 20 | 30} Size
+ *
  * @typedef {"field" | "forest" | "mountain" | "capital" | "village" | "lighthouse"} Biome
- * @typedef {"crop" | "metal" | "fruit" | "animal" | null} Resource
+ * @typedef {"crop" | "metal" | "fruit" | "animal"} Resource
+ * @typedef {Exploitation | SpecialBuilding | Temple} Building
  * @typedef {"inner" | "outer" | "none"} Territory
- * @typedef {"farm" | "mine" | "lumber hut" | "mountain temple" | "forest temple" | "temple" | null} Building
+ *
+ * @typedef {"mountain temple" | "forest temple" | "temple"} Temple
+ * @typedef {"farm" | "mine" | "lumber hut" } Exploitation
  * @typedef {"forge" | "windmill" | "sawmill"} SpecialBuilding
- * @typedef {Building | "end turn" } TypeAction
+ * @typedef {"harvest" | "hunting" } Foraging
+ * @typedef {"clear forest" | "burn forest" | "grow forest"} Terraforming
+ * @typedef {Building | Foraging | Terraforming | "end turn"} TypeAction
  */
