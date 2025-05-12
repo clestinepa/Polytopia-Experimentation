@@ -14,7 +14,7 @@ export class TileGenerator extends Tile {
 
   /**
    * @param {Number} i
-   * @param {Number} size
+   * @param {Size} size
    */
   constructor(i, size) {
     let row = Math.floor(i / size);

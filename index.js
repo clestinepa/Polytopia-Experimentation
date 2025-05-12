@@ -1,19 +1,24 @@
-import { display_map, get_assets } from "./scripts/display.js";
-import { MapSimulator } from "./scripts/models/Simulator/MapSimulator.js";
+import { get_assets } from "./scripts/assets.js";
+import { Simulator } from "./scripts/models/Simulator/Simulator.js";
 import { MapGenerator } from "./scripts/models/Generator/MapGenerator.js";
+import { Display } from "./scripts/models/Display.js";
 
 /** @type {MapGenerator | undefined} */
 let mapGeneration;
 
-/** @type {MapSimulator | undefined} */
-let mapSimulator;
+/** @type {Display | undefined} */
+let display;
+
+/** @type {Simulator | undefined} */
+let simulator;
 
 document.getElementById("generate").addEventListener("click", () => {
-  mapSimulator = undefined;
-  const map_size = parseInt(Array.from(document.getElementsByName("map_size")).find((r) => r.checked).value);
-  mapGeneration = new MapGenerator(map_size);
+  mapGeneration = new MapGenerator();
+  display = new Display(mapGeneration.size);
+  simulator = undefined;
+
   mapGeneration.generate();
-  display_map(mapGeneration);
+  display.drawMap(mapGeneration);
 
   document.getElementById("next").disabled = false;
   document.getElementById("next").innerHTML = "Start";
@@ -22,15 +27,15 @@ document.getElementById("generate").addEventListener("click", () => {
 });
 
 document.getElementById("next").addEventListener("click", () => {
-  if (!mapSimulator) {
-    mapSimulator = new MapSimulator(mapGeneration);
-    mapSimulator.start();
+  if (!simulator) {
+    simulator = new Simulator(mapGeneration);
+    simulator.start();
     document.getElementById("next").innerHTML = "Next";
     document.getElementById("prev").style.display = "block";
     document.getElementById("information").style.display = "block";
-  } else mapSimulator.next();
+  } else simulator.next();
 
-  display_map(mapSimulator);
+  display.drawMap(simulator.map);
 });
 
 document.addEventListener("DOMContentLoaded", get_assets);

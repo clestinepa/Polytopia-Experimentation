@@ -1,38 +1,32 @@
-import { CitySimulator } from "./CitySimulator.js";
-import { MapSimulator } from "./MapSimulator.js";
+import { Simulator } from "./Simulator.js";
 import { TileSimulator } from "./TileSimulator.js";
 
 export class Action {
+  static DATA = {};
+
   /** @type {TypeAction} */
   type;
-  /** @type {Number} */
-  production;
-  /** @type {Number} */
-  cost;
 
   /** @type {TileSimulator} */
   tile;
-  /** @type {CitySimulator} */
-  city;
-  /** @type {MapSimulator} */
-  map;
+  /** @type {Simulator} */
+  simulator;
 
   /**
    * @param {TypeAction} type
    * @param {TileSimulator} tile
-   * @param {MapSimulator} map
+   * @param {Simulator} simulator
    */
-  constructor(type, tile, map) {
+  constructor(type, tile, simulator) {
     this.type = type;
     this.tile = tile;
-    this.city = tile ? tile.city : undefined;
-    this.map = map;
+    this.simulator = simulator;
   }
 
   apply() {
-    this.map.stars -= this.cost;
-    this.map.actions.push(this);
-    this.city.addPopulations(this.production, this.map);
+    this.simulator.map.stars -= Action.DATA[this.type].cost;
+    this.simulator.actions.push(this);
+    this.tile.city.addPopulations(Action.DATA[this.type].production, this.simulator.map);
   }
 }
 
@@ -40,10 +34,10 @@ export class Build extends Action {
   /**
    * @param {Building} type
    * @param {TileSimulator} tile
-   * @param {MapSimulator} map
+   * @param {Simulator} simulator
    */
-  constructor(type, tile, map) {
-    super(type, tile, map);
+  constructor(type, tile, simulator) {
+    super(type, tile, simulator);
   }
 
   apply() {
@@ -56,12 +50,10 @@ export class BuildTemple extends Build {
   /**
    * @param {Temple} type
    * @param {TileSimulator} tile
-   * @param {MapSimulator} map
+   * @param {Simulator} simulator
    */
-  constructor(type, tile, map) {
-    super(type, tile, map);
-    this.production = 1;
-    this.cost = type === "forest temple" ? 15 : 20;
+  constructor(type, tile, simulator) {
+    super(type, tile, simulator);
   }
 
   apply() {
@@ -73,12 +65,10 @@ export class BuildExploitation extends Build {
   /**
    * @param {Exploitation} type
    * @param {TileSimulator} tile
-   * @param {MapSimulator} map
+   * @param {Simulator} simulator
    */
-  constructor(type, tile, map) {
-    super(type, tile, map);
-    this.production = type === "lumber hut" ? 1 : 2;
-    this.cost = type === "lumber hut" ? 3 : 5;
+  constructor(type, tile, simulator) {
+    super(type, tile, simulator);
   }
 
   apply() {
@@ -91,12 +81,10 @@ export class Forage extends Action {
   /**
    * @param {Foraging} type
    * @param {TileSimulator} tile
-   * @param {MapSimulator} map
+   * @param {Simulator} simulator
    */
-  constructor(type, tile, map) {
-    super(type, tile, map);
-    this.production = 1;
-    this.cost = 2;
+  constructor(type, tile, simulator) {
+    super(type, tile, simulator);
   }
 
   apply() {
@@ -109,12 +97,10 @@ export class Terraform extends Action {
   /**
    * @param {Terraforming} type
    * @param {TileSimulator} tile
-   * @param {MapSimulator} map
+   * @param {Simulator} simulator
    */
-  constructor(type, tile, map) {
-    super(type, tile, map);
-    this.production = 0;
-    this.cost = type === "clear forest" ? -1 : 5;
+  constructor(type, tile, simulator) {
+    super(type, tile, simulator);
   }
 
   apply() {
@@ -130,15 +116,27 @@ export class Terraform extends Action {
 
 export class EndTurn extends Action {
   /**
-   * @param {MapSimulator} map
+   * @param {Simulator} simulator
    */
-  constructor(map) {
-    super("end turn", undefined, map);
-    this.production = 0;
-    this.cost = 0;
+  constructor(simulator) {
+    super("end turn", undefined, simulator);
   }
 
   apply() {
-    this.map.endTurn();
+    this.simulator.endTurn();
   }
 }
+
+Action.DATA = {
+  "forest temple": { cost: 15, production: 1, class: BuildTemple },
+  "mountain temple": { cost: 20, production: 1, class: BuildTemple },
+  temple: { cost: 20, production: 1, class: BuildTemple },
+  "lumber hut": { cost: 3, production: 1, class: BuildExploitation },
+  farm: { cost: 5, production: 2, class: BuildExploitation },
+  mine: { cost: 5, production: 2, class: BuildExploitation },
+  hunting: { cost: 2, production: 1, class: Forage },
+  harvest: { cost: 2, production: 1, class: Forage },
+  "clear forest": { cost: -1, production: 0, class: Terraform },
+  "burn forest": { cost: 5, production: 0, class: Terraform },
+  "grow forest": { cost: 5, production: 0, class: Terraform },
+};

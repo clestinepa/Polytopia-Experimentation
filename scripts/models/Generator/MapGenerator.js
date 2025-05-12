@@ -1,3 +1,4 @@
+import "../../types.js";
 import { getRandomIndex, randomInt } from "../../utils.js";
 import { Map } from "../Map.js";
 import { TileGenerator } from "./TileGenerator.js";
@@ -17,11 +18,8 @@ export class MapGenerator extends Map {
   /** @type {boolean[]} */
   #potentialVillages;
 
-  /**
-   * @param {Size} size
-   */
-  constructor(size) {
-    super(size);
+  constructor() {
+    super(parseInt(Array.from(document.getElementsByName("map_size")).find((r) => r.checked).value));
     this.probs = new ProbsGeneration();
     this.tiles = Array.from({ length: this.size ** 2 }, (_, i) => new TileGenerator(i, this.size));
   }

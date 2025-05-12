@@ -3,8 +3,8 @@
  *
  * @typedef {"field" | "forest" | "mountain" | "capital" | "village" | "lighthouse"} Biome
  * @typedef {"crop" | "metal" | "fruit" | "animal"} Resource
- * @typedef {Exploitation | SpecialBuilding | Temple} Building
  * @typedef {"inner" | "outer" | "none"} Territory
+ * @typedef {Exploitation | SpecialBuilding | Temple} Building
  *
  * @typedef {"mountain temple" | "forest temple" | "temple"} Temple
  * @typedef {"farm" | "mine" | "lumber hut" } Exploitation
