@@ -20,13 +20,12 @@ export class Action {
   /**
    * @param {TypeAction} type
    * @param {TileExploiter} tile
-   * @param {CityExploiter} city
    * @param {MapExploiter} map
    */
-  constructor(type, tile, city, map) {
+  constructor(type, tile, map) {
     this.type = type;
     this.tile = tile;
-    this.city = city;
+    this.city = tile ? tile.city : undefined;
     this.map = map;
   }
 
@@ -34,8 +33,6 @@ export class Action {
     this.map.stars -= this.cost;
     this.map.actions.push(this);
     this.city.addPopulations(this.production, this.map);
-    this.map.populations += this.production;
-    this.map.stars_production = this.map.calculateStarsProduction();
   }
 }
 
@@ -43,11 +40,10 @@ export class Build extends Action {
   /**
    * @param {Building} type
    * @param {TileExploiter} tile
-   * @param {CityExploiter} city
    * @param {MapExploiter} map
    */
-  constructor(type, tile, city, map) {
-    super(type, tile, city, map);
+  constructor(type, tile, map) {
+    super(type, tile, map);
   }
 
   apply() {
@@ -60,11 +56,10 @@ export class BuildTemple extends Build {
   /**
    * @param {Temple} type
    * @param {TileExploiter} tile
-   * @param {CityExploiter} city
    * @param {MapExploiter} map
    */
-  constructor(type, tile, city, map) {
-    super(type, tile, city, map);
+  constructor(type, tile, map) {
+    super(type, tile, map);
     this.production = 1;
     this.cost = type === "forest temple" ? 15 : 20;
   }
@@ -78,11 +73,10 @@ export class BuildExploitation extends Build {
   /**
    * @param {Exploitation} type
    * @param {TileExploiter} tile
-   * @param {CityExploiter} city
    * @param {MapExploiter} map
    */
-  constructor(type, tile, city, map) {
-    super(type, tile, city, map);
+  constructor(type, tile, map) {
+    super(type, tile, map);
     this.production = type === "lumber hut" ? 1 : 2;
     this.cost = type === "lumber hut" ? 3 : 5;
   }
@@ -97,11 +91,10 @@ export class Forage extends Action {
   /**
    * @param {Foraging} type
    * @param {TileExploiter} tile
-   * @param {CityExploiter} city
    * @param {MapExploiter} map
    */
-  constructor(type, tile, city, map) {
-    super(type, tile, city, map);
+  constructor(type, tile, map) {
+    super(type, tile, map);
     this.production = 1;
     this.cost = 2;
   }
@@ -116,11 +109,10 @@ export class Terraform extends Action {
   /**
    * @param {Terraforming} type
    * @param {TileExploiter} tile
-   * @param {CityExploiter} city
    * @param {MapExploiter} map
    */
-  constructor(type, tile, city, map) {
-    super(type, tile, city, map);
+  constructor(type, tile, map) {
+    super(type, tile, map);
     this.production = 0;
     this.cost = type === "clear forest" ? -1 : 5;
   }
@@ -141,7 +133,7 @@ export class EndTurn extends Action {
    * @param {MapExploiter} map
    */
   constructor(map) {
-    super("end turn", undefined, undefined, map);
+    super("end turn", undefined, map);
     this.production = 0;
     this.cost = 0;
   }
