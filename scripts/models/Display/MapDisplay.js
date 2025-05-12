@@ -1,4 +1,4 @@
-import { Map } from "./Map.js";
+import { Map } from "../Map.js";
 
 export class MapDisplay extends Map {
   static default_asset = "field"; //name of the asset used to calculate height and width

@@ -1,6 +1,6 @@
-import { Map } from "./Map.js";
+import { getRandomIndex, randomInt } from "../../utils.js";
+import { Map } from "../Map.js";
 import { TileGenerator } from "./TileGenerator.js";
-import { getRandomIndex, randomInt } from "../utils.js";
 import { ProbsGeneration } from "./ProbsGeneration.js";
 
 /** NEXT STEPS :
@@ -23,7 +23,7 @@ export class MapGenerator extends Map {
   constructor(size) {
     super(size);
     this.probs = new ProbsGeneration();
-    this.map = Array.from({ length: this.size ** 2 }, (_, i) => new TileGenerator(i, this.size));
+    this.tiles = Array.from({ length: this.size ** 2 }, (_, i) => new TileGenerator(i, this.size));
   }
 
   _initialization() {
@@ -41,7 +41,7 @@ export class MapGenerator extends Map {
       0 * this.size + (this.size - 1),
       (this.size - 1) * this.size + 0,
       (this.size - 1) * this.size + (this.size - 1),
-    ].forEach((corner) => (this.map[corner].biome = "lighthouse"));
+    ].forEach((corner) => (this.tiles[corner].biome = "lighthouse"));
   }
 
   _generateCapital() {
@@ -49,22 +49,22 @@ export class MapGenerator extends Map {
     let min = 2;
     let max = this.size - 3;
     let index = randomInt(min, max) * this.size + randomInt(min, max);
-    this.map[index].biome = "capital";
+    this.tiles[index].biome = "capital";
     this.#potentialVillages[index] = false;
-    super.getBorderTilesIndex(this.map[index], 2).forEach((i) => {
-      this.map[i].territory = "outer";
+    super.getBorderTilesIndex(this.tiles[index], 2).forEach((i) => {
+      this.tiles[i].territory = "outer";
       this.#potentialVillages[i] = false;
-      this.map[i].known = true;
+      this.tiles[i].known = true;
     });
-    super.getBorderTilesIndex(this.map[index], 1).forEach((i) => {
-      this.map[i].territory = "inner";
+    super.getBorderTilesIndex(this.tiles[index], 1).forEach((i) => {
+      this.tiles[i].territory = "inner";
       this.#potentialVillages[i] = false;
-      this.map[i].isCapitalCity = true;
+      this.tiles[i].isCapitalCity = true;
     });
   }
 
   _generateBiome() {
-    this.map.forEach((tile, i) => {
+    this.tiles.forEach((tile, i) => {
       let rand = Math.random(); // 0 forest field mountain 1
       if (rand < this.probs.forest.prob) tile.biome = "forest";
       else if (rand > 1 - this.probs.mountain.prob) {
@@ -77,21 +77,21 @@ export class MapGenerator extends Map {
   _generateVillage() {
     while (this.#potentialVillages.indexOf(true) !== -1) {
       let index = getRandomIndex(this.#potentialVillages, (isPotential) => isPotential);
-      this.map[index].biome = "village";
+      this.tiles[index].biome = "village";
       this.#potentialVillages[index] = false;
-      super.getBorderTilesIndex(this.map[index], 2).forEach((i) => {
-        this.map[i].territory = "outer";
+      super.getBorderTilesIndex(this.tiles[index], 2).forEach((i) => {
+        this.tiles[i].territory = "outer";
         this.#potentialVillages[i] = false;
       });
-      super.getBorderTilesIndex(this.map[index], 1).forEach((i) => {
-        this.map[i].territory = "inner";
+      super.getBorderTilesIndex(this.tiles[index], 1).forEach((i) => {
+        this.tiles[i].territory = "inner";
         this.#potentialVillages[i] = false;
       });
     }
   }
 
   _generateResources() {
-    for (let tile of this.map) {
+    for (let tile of this.tiles) {
       if (tile.territory !== "none") {
         switch (tile.biome) {
           case "field":

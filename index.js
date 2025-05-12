@@ -1,15 +1,15 @@
 import { display_map, get_assets } from "./scripts/display.js";
-import { MapExploiter } from "./scripts/map/MapExploiter.js";
-import { MapGenerator } from "./scripts/map/MapGenerator.js";
+import { MapSimulator } from "./scripts/models/Simulator/MapSimulator.js";
+import { MapGenerator } from "./scripts/models/Generator/MapGenerator.js";
 
 /** @type {MapGenerator | undefined} */
 let mapGeneration;
 
-/** @type {MapExploiter | undefined} */
-let mapExploit;
+/** @type {MapSimulator | undefined} */
+let mapSimulator;
 
 document.getElementById("generate").addEventListener("click", () => {
-  mapExploit = undefined;
+  mapSimulator = undefined;
   const map_size = parseInt(Array.from(document.getElementsByName("map_size")).find((r) => r.checked).value);
   mapGeneration = new MapGenerator(map_size);
   mapGeneration.generate();
@@ -22,15 +22,15 @@ document.getElementById("generate").addEventListener("click", () => {
 });
 
 document.getElementById("next").addEventListener("click", () => {
-  if (!mapExploit) {
-    mapExploit = new MapExploiter(mapGeneration);
-    mapExploit.start();
+  if (!mapSimulator) {
+    mapSimulator = new MapSimulator(mapGeneration);
+    mapSimulator.start();
     document.getElementById("next").innerHTML = "Next";
     document.getElementById("prev").style.display = "block";
     document.getElementById("information").style.display = "block";
-  } else mapExploit.next();
+  } else mapSimulator.next();
 
-  display_map(mapExploit);
+  display_map(mapSimulator);
 });
 
 document.addEventListener("DOMContentLoaded", get_assets);

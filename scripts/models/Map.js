@@ -5,7 +5,7 @@ export class Map {
   static tribe = "Ai-mo";
 
   /** @type {Tile[]} */
-  map;
+  tiles;
   /** @type {Size} */
   size;
 
@@ -23,7 +23,7 @@ export class Map {
    */
   getBorderTilesIndex(center, offset) {
     let borderTilesIndex = [];
-    this.map.forEach((t, i) => {
+    this.tiles.forEach((t, i) => {
       if (t.col >= center.col - offset && t.col <= center.col + offset) {
         if (t.row === center.row - offset) borderTilesIndex.push(i);
         if (t.row === center.row + offset) borderTilesIndex.push(i);

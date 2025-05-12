@@ -1,5 +1,5 @@
-import { Map } from "./map/Map.js";
-import { Tile } from "./map/Tile.js";
+import { Map } from "./models/Map.js";
+import { Tile } from "./models/Tile.js";
 
 /**
  *
@@ -32,7 +32,7 @@ export function getRandomIndex(array, condition = () => true) {
  */
 export function printMap(map, className, text) {
   let seen_grid = Array(map.size).fill("");
-  map.map.forEach((tile) => (seen_grid[tile.row] += '<div class="' + className(tile) + '">' + text(tile) + "</div>"));
+  map.tiles.forEach((tile) => (seen_grid[tile.row] += '<div class="' + className(tile) + '">' + text(tile) + "</div>"));
   let output = "";
   seen_grid.forEach((row) => (output += '<div class="row">' + row + "</div>"));
 

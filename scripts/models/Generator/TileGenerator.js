@@ -1,4 +1,4 @@
-import { Tile } from "./Tile.js";
+import { Tile } from "../Tile.js";
 
 export class TileGenerator extends Tile {
   /** @type {Biome} */

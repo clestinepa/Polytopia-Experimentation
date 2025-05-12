@@ -1,11 +1,11 @@
-import { getRandomIndex } from "../utils.js";
+import { getRandomIndex } from "../../utils.js";
+import { Map } from "../Map.js";
+import { MapGenerator } from "../Generator/MapGenerator.js";
 import { Action, BuildExploitation, BuildTemple, EndTurn, Forage, Terraform } from "./Action.js";
-import { CityExploiter } from "./CityExploiter.js";
-import { Map } from "./Map.js";
-import { MapGenerator } from "./MapGenerator.js";
-import { TileExploiter } from "./TileExploiter.js";
+import { CitySimulator } from "./CitySimulator.js";
+import { TileSimulator } from "./TileSimulator.js";
 
-export class MapExploiter extends Map {
+export class MapSimulator extends Map {
   /** @type {Number} */
   #turn;
   /** @type {Number} */
@@ -15,7 +15,7 @@ export class MapExploiter extends Map {
   /** @type {Number} */
   #stars_production;
 
-  /** @type {CityExploiter[]} */
+  /** @type {CitySimulator[]} */
   cities = [];
   /** @type {Action[]} */
   actionsPossible = [];
@@ -27,15 +27,14 @@ export class MapExploiter extends Map {
    */
   constructor(map) {
     super(map.size);
-    this.map = Array.from({ length: this.size ** 2 }, (_, i) => {
-      const tile = new TileExploiter(map.map[i]);
-      if (map.map[i].isCapitalCity) {
-        if (this.cities.length === 0) this.cities.push(new CityExploiter(tile, 1));
+    this.tiles = Array.from({ length: this.size ** 2 }, (_, i) => {
+      const tile = new TileSimulator(map.tiles[i]);
+      if (map.tiles[i].isCapitalCity) {
+        if (this.cities.length === 0) this.cities.push(new CitySimulator(tile, 1));
         else this.cities[0].addTile(tile);
       }
       return tile;
     });
-    this.map.forEach((tile) => tile);
   }
 
   get turn() {
@@ -83,9 +82,9 @@ export class MapExploiter extends Map {
 
   next() {
     this.actionsPossible = [new EndTurn(this)];
-    this.map.forEach((tile) => this._defineActionsPossible(tile, tile.city));
+    this.tiles.forEach((tile) => this._defineActionsPossible(tile, tile.city));
     const nextAction = this.actionsPossible[getRandomIndex(this.actionsPossible)];
-    console.log(this.actionsPossible, nextAction);
+    console.log(nextAction.type);
     nextAction.apply();
   }
 

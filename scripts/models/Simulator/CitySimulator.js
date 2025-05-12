@@ -1,7 +1,7 @@
-import { MapExploiter } from "./MapExploiter.js";
-import { TileExploiter } from "./TileExploiter.js";
+import { MapSimulator } from "./MapSimulator.js";
+import { TileSimulator } from "./TileSimulator.js";
 
-export class CityExploiter {
+export class CitySimulator {
   /** @type {Number | null} */
   #city_id;
   /** @typedef {Number} */
@@ -13,11 +13,11 @@ export class CityExploiter {
   /** @type {Number} */
   #stars_production;
 
-  /** @type {TileExploiter[]} */
+  /** @type {TileSimulator[]} */
   tiles;
 
   /**
-   * @param {TileExploiter} tile
+   * @param {TileSimulator} tile
    * @param {Number} id
    */
   constructor(tile, id) {
@@ -41,7 +41,7 @@ export class CityExploiter {
   }
 
   /**
-   * @param {TileExploiter} tile
+   * @param {TileSimulator} tile
    */
   addTile(tile) {
     this.tiles.push(tile);
@@ -49,7 +49,7 @@ export class CityExploiter {
   }
 
   /**
-   * @param {MapExploiter} map
+   * @param {MapSimulator} map
    * @param {Number} value
    */
   increasePopulations(map, value) {
@@ -59,7 +59,7 @@ export class CityExploiter {
   }
 
   /**
-   * @param {MapExploiter} map
+   * @param {MapSimulator} map
    * @param {Number} value
    */
   increaseStarProduction(map, value = 1) {
@@ -69,7 +69,7 @@ export class CityExploiter {
 
   /**
    * @param {Number} value
-   * @param {MapExploiter} map
+   * @param {MapSimulator} map
    */
   addPopulations(value, map) {
     this.increasePopulations(map, value);

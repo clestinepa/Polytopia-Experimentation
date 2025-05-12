@@ -1,5 +1,5 @@
-import { Map } from "./map/Map.js";
-import { MapDisplay } from "./map/MapDisplay.js";
+import { Map } from "./models/Map.js";
+import { MapDisplay } from "./models/Display/MapDisplay.js";
 
 const images = [
   "crop",
@@ -84,7 +84,7 @@ export function display_map(map) {
     canvas.drawImage(image, x, y - offsetY * tile_height, tile_width, (image.height * tile_width) / image.width);
   }
 
-  for (let tile of map.map) {
+  for (let tile of map.tiles) {
     x = get_x(tile);
     y = get_y(tile);
 

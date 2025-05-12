@@ -1,6 +1,6 @@
-import { CityExploiter } from "./CityExploiter.js";
-import { MapExploiter } from "./MapExploiter.js";
-import { TileExploiter } from "./TileExploiter.js";
+import { CitySimulator } from "./CitySimulator.js";
+import { MapSimulator } from "./MapSimulator.js";
+import { TileSimulator } from "./TileSimulator.js";
 
 export class Action {
   /** @type {TypeAction} */
@@ -10,17 +10,17 @@ export class Action {
   /** @type {Number} */
   cost;
 
-  /** @type {TileExploiter} */
+  /** @type {TileSimulator} */
   tile;
-  /** @type {CityExploiter} */
+  /** @type {CitySimulator} */
   city;
-  /** @type {MapExploiter} */
+  /** @type {MapSimulator} */
   map;
 
   /**
    * @param {TypeAction} type
-   * @param {TileExploiter} tile
-   * @param {MapExploiter} map
+   * @param {TileSimulator} tile
+   * @param {MapSimulator} map
    */
   constructor(type, tile, map) {
     this.type = type;
@@ -39,8 +39,8 @@ export class Action {
 export class Build extends Action {
   /**
    * @param {Building} type
-   * @param {TileExploiter} tile
-   * @param {MapExploiter} map
+   * @param {TileSimulator} tile
+   * @param {MapSimulator} map
    */
   constructor(type, tile, map) {
     super(type, tile, map);
@@ -55,8 +55,8 @@ export class Build extends Action {
 export class BuildTemple extends Build {
   /**
    * @param {Temple} type
-   * @param {TileExploiter} tile
-   * @param {MapExploiter} map
+   * @param {TileSimulator} tile
+   * @param {MapSimulator} map
    */
   constructor(type, tile, map) {
     super(type, tile, map);
@@ -72,8 +72,8 @@ export class BuildTemple extends Build {
 export class BuildExploitation extends Build {
   /**
    * @param {Exploitation} type
-   * @param {TileExploiter} tile
-   * @param {MapExploiter} map
+   * @param {TileSimulator} tile
+   * @param {MapSimulator} map
    */
   constructor(type, tile, map) {
     super(type, tile, map);
@@ -90,8 +90,8 @@ export class BuildExploitation extends Build {
 export class Forage extends Action {
   /**
    * @param {Foraging} type
-   * @param {TileExploiter} tile
-   * @param {MapExploiter} map
+   * @param {TileSimulator} tile
+   * @param {MapSimulator} map
    */
   constructor(type, tile, map) {
     super(type, tile, map);
@@ -108,8 +108,8 @@ export class Forage extends Action {
 export class Terraform extends Action {
   /**
    * @param {Terraforming} type
-   * @param {TileExploiter} tile
-   * @param {MapExploiter} map
+   * @param {TileSimulator} tile
+   * @param {MapSimulator} map
    */
   constructor(type, tile, map) {
     super(type, tile, map);
@@ -130,7 +130,7 @@ export class Terraform extends Action {
 
 export class EndTurn extends Action {
   /**
-   * @param {MapExploiter} map
+   * @param {MapSimulator} map
    */
   constructor(map) {
     super("end turn", undefined, map);

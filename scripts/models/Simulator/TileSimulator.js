@@ -1,10 +1,11 @@
-import { Tile } from "./Tile.js";
-import { TileGenerator } from "./TileGenerator.js";
+import { Tile } from "../Tile.js";
+import { TileGenerator } from "../Generator/TileGenerator.js";
+import { CitySimulator } from "./CitySimulator.js";
 
-export class TileExploiter extends Tile {
+export class TileSimulator extends Tile {
   /** @type {Boolean} */
   known = false;
-  /** @type {CityExploiter | null} */
+  /** @type {CitySimulator | null} */
   city = null;
 
   /** @type {Biome} */
