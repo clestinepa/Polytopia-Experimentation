@@ -1,17 +1,18 @@
+import { TileGenerator } from "../Generator/TileGenerator.js";
 import { Map } from "./Map.js";
 import { TileSimulator } from "./TileSimulator.js";
 
 export class City {
   /** @type {Number | null} */
-  #city_id;
+  city_id;
   /** @typedef {Number} */
-  #level = 1;
+  level = 1;
   /** @type {Number} */
-  #populations = 0;
+  populations = 0;
   /** @type {Number} */
-  #total_populations = 0;
+  total_populations = 0;
   /** @type {Number} */
-  #stars_production;
+  stars_production;
 
   /** @type {TileSimulator[]} */
   tiles;
@@ -22,22 +23,17 @@ export class City {
    */
   constructor(tile, id) {
     this.tiles = [tile];
-    this.#city_id = id;
-    tile.city = this;
-    this.#stars_production = this.#city_id === 1 ? 2 : 1;
+    this.city_id = id;
+    this.linkCityToTile(tile);
+    this.stars_production = this.city_id === 0 ? 2 : 1;
   }
 
-  get city_id() {
-    return this.#city_id;
-  }
-  get level() {
-    return this.#level;
-  }
-  get total_populations() {
-    return this.#total_populations;
-  }
-  get stars_production() {
-    return this.#stars_production;
+  /**
+   * @param {TileSimulator} tile
+   */
+  linkCityToTile(tile) {
+    tile.city = this;
+    tile.city_id = this.city_id;
   }
 
   /**
@@ -45,7 +41,7 @@ export class City {
    */
   addTile(tile) {
     this.tiles.push(tile);
-    tile.city = this;
+    this.linkCityToTile(tile);
   }
 
   /**
@@ -53,8 +49,8 @@ export class City {
    * @param {Number} value
    */
   increasePopulations(map, value) {
-    this.#populations += value;
-    this.#total_populations += value;
+    this.populations += value;
+    this.total_populations += value;
     map.populations += value;
   }
 
@@ -63,7 +59,7 @@ export class City {
    * @param {Number} value
    */
   increaseStarProduction(map, value = 1) {
-    this.#stars_production += value;
+    this.stars_production += value;
     map.stars_production += value;
   }
 
@@ -73,15 +69,28 @@ export class City {
    */
   addPopulations(value, map) {
     this.increasePopulations(map, value);
-    if (this.#populations >= this.#level + 1) {
-      this.#level++;
+    if (this.populations >= this.level + 1) {
+      this.level++;
       this.increaseStarProduction(map);
-      if (this.#level === 2) this.increaseStarProduction(map);
-      else if (this.#level === 3) map.stars += 5;
-      else if (this.#level === 4) this.increasePopulations(map, 3);
-      else if (this.#level >= 5) this.increaseStarProduction(map);
-      this.#populations -= this.#level;
-      console.log("City is levelling to level " + this.#level);
+      if (this.level === 2) this.increaseStarProduction(map);
+      else if (this.level === 3) map.stars += 5;
+      else if (this.level === 4) this.increasePopulations(map, 3);
+      else if (this.level >= 5) this.increaseStarProduction(map);
+      this.populations -= this.level;
+      console.log("City is levelling to level " + this.level);
     }
+  }
+
+  /** Clone without tiles */
+  clone() {
+    /** @type {City} */
+    const newCity = Object.create(City.prototype); //random param, they will be overwrite
+    newCity.city_id = this.city_id;
+    newCity.level = this.level;
+    newCity.populations = this.populations;
+    newCity.total_populations = this.total_populations;
+    newCity.stars_production = this.stars_production;
+    newCity.tiles = [];
+    return newCity;
   }
 }

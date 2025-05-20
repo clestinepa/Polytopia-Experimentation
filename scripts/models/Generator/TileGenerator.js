@@ -13,12 +13,10 @@ export class TileGenerator extends Tile {
   known = false;
 
   /**
-   * @param {Number} i
-   * @param {Size} size
+   * @param {Number} row
+   * @param {Number} col
    */
-  constructor(i, size) {
-    let row = Math.floor(i / size);
-    let col = i % size;
+  constructor(row, col) {
     super(row, col);
   }
 

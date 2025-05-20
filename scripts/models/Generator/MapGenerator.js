@@ -24,7 +24,11 @@ export class MapGenerator {
   constructor() {
     this.size = parseInt(Array.from(document.getElementsByName("map_size")).find((r) => r.checked).value);
     this.probs = new ProbsGeneration();
-    this.tiles = Array.from({ length: this.size ** 2 }, (_, i) => new TileGenerator(i, this.size));
+    this.tiles = Array.from({ length: this.size ** 2 }, (_, i) => {
+      let row = Math.floor(i / this.size);
+      let col = i % this.size;
+      return new TileGenerator(row, col);
+    });
   }
 
   /**

@@ -1,4 +1,3 @@
-import { getRandomIndex } from "../../utils.js";
 import { Map } from "./Map.js";
 import { Action, EndTurn } from "./Action.js";
 import { MapGenerator } from "../Generator/MapGenerator.js";
@@ -73,13 +72,44 @@ export class Simulator {
   }
 
   next() {
-    this._defineActionsPossible();
     const nextAction = this.chooseAction();
     console.log(nextAction.type);
     nextAction.apply();
   }
 
   chooseAction() {
-    return this.actionsPossible[getRandomIndex(this.actionsPossible)];
+    this._defineActionsPossible();
+    let bestScore = -Infinity;
+    let bestAction = null;
+
+    for (const action of this.actionsPossible) {
+      const clone = this.clone();
+      /** @type {Action} */
+      let testAction;
+      if (action.type !== "end turn")
+        testAction = new action.constructor(action.type, clone.map.getTile(action.tile.row, action.tile.col), clone);
+      else testAction = new action.constructor(clone);
+      testAction.apply();
+      const score = clone.evaluateState();
+      if (score > bestScore) {
+        bestScore = score;
+        bestAction = action;
+      }
+    }
+
+    return bestAction;
+  }
+
+  clone() {
+    const newSimulator = new Simulator(new MapGenerator()); //random param, it will be overwrite
+    newSimulator.map = this.map.clone();
+    newSimulator.turn = this.turn;
+    newSimulator.actionsPossible = this.actionsPossible.slice();
+    newSimulator.actions = this.actions.slice();
+    return newSimulator;
+  }
+
+  evaluateState() {
+    return this.map.populations * 10 - this.turn * 3;
   }
 }

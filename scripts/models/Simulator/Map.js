@@ -28,7 +28,7 @@ export class Map {
     this.tiles = Array.from({ length: this.size ** 2 }, (_, i) => {
       const tile = new TileSimulator(map.tiles[i]);
       if (map.tiles[i].isCapitalCity) {
-        if (this.cities.length === 0) this.cities.push(new City(tile, 1));
+        if (this.cities.length === 0) this.cities.push(new City(tile, 0));
         else this.cities[0].addTile(tile);
       }
       return tile;
@@ -56,5 +56,23 @@ export class Map {
   set stars_production(value) {
     this.#stars_production = value;
     document.getElementById("stars_production").innerHTML = this.#stars_production;
+  }
+
+  clone() {
+    const newMap = new Map(new MapGenerator(this.size));
+    newMap.populations = this.populations;
+    newMap.stars = this.stars;
+    newMap.stars_production = this.stars_production;
+    newMap.tiles = this.tiles.map((tile) => tile.clone());
+    newMap.cities = this.cities.map((city) => city.clone());
+    //link cities and tiles together
+    newMap.tiles.forEach((tile) => {
+      if (tile.city_id !== null) newMap.cities[tile.city_id].addTile(tile);
+    });
+    return newMap;
+  }
+
+  getTile(row, col) {
+    return this.tiles[row * this.size + col];
   }
 }
