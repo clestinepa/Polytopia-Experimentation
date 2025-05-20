@@ -1,10 +1,11 @@
 import "../../types.js";
-import { Map } from "../Map.js";
 import { MapGenerator } from "../Generator/MapGenerator.js";
-import { CitySimulator } from "./CitySimulator.js";
+import { City } from "./City.js";
 import { TileSimulator } from "./TileSimulator.js";
 
-export class MapSimulator extends Map {
+export class Map {
+  static tribe = "Ai-mo";
+
   /** @type {Number} */
   #populations;
   /** @type {Number} */
@@ -12,18 +13,22 @@ export class MapSimulator extends Map {
   /** @type {Number} */
   #stars_production;
 
-  /** @type {CitySimulator[]} */
+  /** @type {Size} */
+  size;
+  /** @type {TileSimulator[]} */
+  tiles;
+  /** @type {City[]} */
   cities = [];
 
   /**
    * @param {MapGenerator} map
    */
   constructor(map) {
-    super(map.size);
+    this.size = map.size;
     this.tiles = Array.from({ length: this.size ** 2 }, (_, i) => {
       const tile = new TileSimulator(map.tiles[i]);
       if (map.tiles[i].isCapitalCity) {
-        if (this.cities.length === 0) this.cities.push(new CitySimulator(tile, 1));
+        if (this.cities.length === 0) this.cities.push(new City(tile, 1));
         else this.cities[0].addTile(tile);
       }
       return tile;

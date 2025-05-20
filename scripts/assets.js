@@ -1,5 +1,5 @@
-import { Map } from "./models/Map.js";
 import { Display } from "./models/Display.js";
+import { Map } from "./models/Simulator/Map.js";
 
 const images = [
   "crop",

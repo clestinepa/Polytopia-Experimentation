@@ -1,7 +1,7 @@
-import { MapSimulator } from "./MapSimulator.js";
+import { Map } from "./Map.js";
 import { TileSimulator } from "./TileSimulator.js";
 
-export class CitySimulator {
+export class City {
   /** @type {Number | null} */
   #city_id;
   /** @typedef {Number} */
@@ -49,7 +49,7 @@ export class CitySimulator {
   }
 
   /**
-   * @param {MapSimulator} map
+   * @param {Map} map
    * @param {Number} value
    */
   increasePopulations(map, value) {
@@ -59,7 +59,7 @@ export class CitySimulator {
   }
 
   /**
-   * @param {MapSimulator} map
+   * @param {Map} map
    * @param {Number} value
    */
   increaseStarProduction(map, value = 1) {
@@ -69,7 +69,7 @@ export class CitySimulator {
 
   /**
    * @param {Number} value
-   * @param {MapSimulator} map
+   * @param {Map} map
    */
   addPopulations(value, map) {
     this.increasePopulations(map, value);

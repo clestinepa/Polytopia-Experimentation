@@ -1,7 +1,7 @@
 import { assets } from "../assets.js";
 import { MapGenerator } from "./Generator/MapGenerator.js";
-import { CitySimulator } from "./Simulator/CitySimulator.js";
-import { MapSimulator } from "./Simulator/MapSimulator.js";
+import { City } from "./Simulator/City.js";
+import { Map } from "./Simulator/Map.js";
 
 export class Display {
   static default_asset = "field"; //name of the asset used to calculate height and width
@@ -77,7 +77,7 @@ export class Display {
   }
 
   /**
-   * @param {MapGenerator | MapSimulator} map
+   * @param {MapGenerator | Map} map
    */
   _drawTiles(map) {
     for (let tile of map.tiles) {
@@ -92,7 +92,7 @@ export class Display {
   }
 
   /**
-   * @param {CitySimulator} cities
+   * @param {City} cities
    */
   _drawBorderCities(cities) {
     cities.forEach((city) => {
@@ -120,7 +120,7 @@ export class Display {
   }
 
   /**
-   * @param {MapGenerator | MapSimulator} map
+   * @param {MapGenerator | Map} map
    */
   drawMap(map) {
     this.canvas.clearRect(0, 0, canvas_html.width, canvas_html.height);

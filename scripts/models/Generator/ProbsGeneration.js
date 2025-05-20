@@ -1,4 +1,4 @@
-import { Map } from "../Map.js";
+import { Map } from "../Simulator/Map.js";
 
 export class ProbsGeneration {
   static #modifiers = {

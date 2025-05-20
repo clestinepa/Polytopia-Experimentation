@@ -1,6 +1,5 @@
 import "../../types.js";
 import { getRandomIndex, randomInt } from "../../utils.js";
-import { Map } from "../Map.js";
 import { TileGenerator } from "./TileGenerator.js";
 import { ProbsGeneration } from "./ProbsGeneration.js";
 
@@ -11,17 +10,41 @@ import { ProbsGeneration } from "./ProbsGeneration.js";
  *      => do not generate tile alone but all tiles together
  */
 
-export class MapGenerator extends Map {
+export class MapGenerator {
   /** @type {ProbsGeneration} */
   probs;
+  /** @type {Tile[]} */
+  tiles;
+  /** @type {Size} */
+  size;
 
   /** @type {boolean[]} */
   #potentialVillages;
 
   constructor() {
-    super(parseInt(Array.from(document.getElementsByName("map_size")).find((r) => r.checked).value));
+    this.size = parseInt(Array.from(document.getElementsByName("map_size")).find((r) => r.checked).value);
     this.probs = new ProbsGeneration();
     this.tiles = Array.from({ length: this.size ** 2 }, (_, i) => new TileGenerator(i, this.size));
+  }
+
+  /**
+   * @param {Tile} center
+   * @param {Number} offset
+   * @returns {Number[]} list of the tiles index in the border
+   */
+  _getBorderTilesIndex(center, offset) {
+    let borderTilesIndex = [];
+    this.tiles.forEach((t, i) => {
+      if (t.col >= center.col - offset && t.col <= center.col + offset) {
+        if (t.row === center.row - offset) borderTilesIndex.push(i);
+        if (t.row === center.row + offset) borderTilesIndex.push(i);
+      }
+      if (t.row > center.row - offset && t.row < center.row + offset) {
+        if (t.col === center.col - offset) borderTilesIndex.push(i);
+        if (t.col === center.col + offset) borderTilesIndex.push(i);
+      }
+    });
+    return borderTilesIndex;
   }
 
   _initialization() {
@@ -49,12 +72,12 @@ export class MapGenerator extends Map {
     let index = randomInt(min, max) * this.size + randomInt(min, max);
     this.tiles[index].biome = "capital";
     this.#potentialVillages[index] = false;
-    super.getBorderTilesIndex(this.tiles[index], 2).forEach((i) => {
+    this._getBorderTilesIndex(this.tiles[index], 2).forEach((i) => {
       this.tiles[i].territory = "outer";
       this.#potentialVillages[i] = false;
       this.tiles[i].known = true;
     });
-    super.getBorderTilesIndex(this.tiles[index], 1).forEach((i) => {
+    this._getBorderTilesIndex(this.tiles[index], 1).forEach((i) => {
       this.tiles[i].territory = "inner";
       this.#potentialVillages[i] = false;
       this.tiles[i].isCapitalCity = true;
@@ -77,11 +100,11 @@ export class MapGenerator extends Map {
       let index = getRandomIndex(this.#potentialVillages, (isPotential) => isPotential);
       this.tiles[index].biome = "village";
       this.#potentialVillages[index] = false;
-      super.getBorderTilesIndex(this.tiles[index], 2).forEach((i) => {
+      this._getBorderTilesIndex(this.tiles[index], 2).forEach((i) => {
         this.tiles[i].territory = "outer";
         this.#potentialVillages[i] = false;
       });
-      super.getBorderTilesIndex(this.tiles[index], 1).forEach((i) => {
+      this._getBorderTilesIndex(this.tiles[index], 1).forEach((i) => {
         this.tiles[i].territory = "inner";
         this.#potentialVillages[i] = false;
       });

@@ -1,9 +1,10 @@
 import { getRandomIndex } from "../../utils.js";
-import { MapSimulator } from "./MapSimulator.js";
-import { Action, BuildExploitation, BuildTemple, EndTurn, Forage, Terraform } from "./Action.js";
+import { Map } from "./Map.js";
+import { Action, EndTurn } from "./Action.js";
+import { MapGenerator } from "../Generator/MapGenerator.js";
 
 export class Simulator {
-  /** @type {MapSimulator} */
+  /** @type {Map} */
   map;
 
   /** @type {Number} */
@@ -17,7 +18,7 @@ export class Simulator {
    * @param {MapGenerator} map
    */
   constructor(map) {
-    this.map = new MapSimulator(map);
+    this.map = new Map(map);
   }
 
   get turn() {
@@ -37,6 +38,7 @@ export class Simulator {
     }
   }
   _defineActionsPossible() {
+    this.actionsPossible = [new EndTurn(this)];
     this.map.tiles.forEach((tile) => {
       if (!tile.city || tile.building) return;
       if (tile.biome === "mountain") {
@@ -57,6 +59,12 @@ export class Simulator {
     });
   }
 
+  endTurn() {
+    this.actions.push("end turn");
+    this.turn++;
+    this.map.stars += this.map.stars_production;
+  }
+
   start() {
     this.turn = 0;
     this.map.populations = 0;
@@ -64,17 +72,14 @@ export class Simulator {
     this.map.stars_production = 2;
   }
 
-  endTurn() {
-    this.actions.push("end turn");
-    this.turn++;
-    this.map.stars += this.map.stars_production;
-  }
-
   next() {
-    this.actionsPossible = [new EndTurn(this)];
     this._defineActionsPossible();
-    const nextAction = this.actionsPossible[getRandomIndex(this.actionsPossible)];
+    const nextAction = this.chooseAction();
     console.log(nextAction.type);
     nextAction.apply();
+  }
+
+  chooseAction() {
+    return this.actionsPossible[getRandomIndex(this.actionsPossible)];
   }
 }

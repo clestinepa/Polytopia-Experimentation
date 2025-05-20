@@ -1,4 +1,4 @@
-import { Map } from "./models/Map.js";
+import { Map } from "./models/Simulator/Map.js";
 import { Tile } from "./models/Tile.js";
 
 /**
