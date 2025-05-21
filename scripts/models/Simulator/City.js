@@ -77,7 +77,7 @@ export class City {
       else if (this.level === 4) this.increasePopulations(map, 3);
       else if (this.level >= 5) this.increaseStarProduction(map);
       this.populations -= this.level;
-      console.log("City is levelling to level " + this.level);
+      if (map.isDisplayMap) console.log("City is levelling to level " + this.level);
     }
   }
 

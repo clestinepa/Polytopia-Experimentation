@@ -1,5 +1,5 @@
 import { get_assets } from "./scripts/assets.js";
-import { Simulator } from "./scripts/models/Simulator/Simulator.js";
+import { State } from "./scripts/models/Simulator/State.js";
 import { MapGenerator } from "./scripts/models/Generator/MapGenerator.js";
 import { Display } from "./scripts/models/Display.js";
 
@@ -9,13 +9,13 @@ let mapGeneration;
 /** @type {Display | undefined} */
 let display;
 
-/** @type {Simulator | undefined} */
-let simulator;
+/** @type {State | undefined} */
+let state;
 
 document.getElementById("generate").addEventListener("click", () => {
   mapGeneration = new MapGenerator();
   display = new Display(mapGeneration.size);
-  simulator = undefined;
+  state = undefined;
 
   mapGeneration.generate();
   display.drawMap(mapGeneration);
@@ -27,15 +27,15 @@ document.getElementById("generate").addEventListener("click", () => {
 });
 
 document.getElementById("next").addEventListener("click", () => {
-  if (!simulator) {
-    simulator = new Simulator(mapGeneration);
-    simulator.start();
+  if (!state) {
+    state = new State(mapGeneration, true);
+    state.start();
     document.getElementById("next").innerHTML = "Next";
     document.getElementById("prev").style.display = "block";
     document.getElementById("information").style.display = "block";
-  } else simulator.next();
+  } else state.next();
 
-  display.drawMap(simulator.map);
+  display.drawMap(state.map);
 });
 
 document.addEventListener("DOMContentLoaded", get_assets);

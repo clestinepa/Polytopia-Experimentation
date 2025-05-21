@@ -1,4 +1,4 @@
-import { Simulator } from "./Simulator.js";
+import { State } from "./State.js";
 import { TileSimulator } from "./TileSimulator.js";
 
 export class Action {
@@ -9,24 +9,35 @@ export class Action {
 
   /** @type {TileSimulator} */
   tile;
-  /** @type {Simulator} */
-  simulator;
+  /** @type {State} */
+  state;
 
   /**
    * @param {TypeAction} type
    * @param {TileSimulator} tile
-   * @param {Simulator} simulator
+   * @param {State} state
    */
-  constructor(type, tile, simulator) {
+  constructor(type, tile, state) {
     this.type = type;
     this.tile = tile;
-    this.simulator = simulator;
+    this.state = state;
   }
 
   apply() {
-    this.simulator.map.stars -= Action.DATA[this.type].cost;
-    this.simulator.actions.push(this);
-    this.tile.city.addPopulations(Action.DATA[this.type].production, this.simulator.map);
+    this.state.map.stars -= Action.DATA[this.type].cost;
+    this.state.actions.push(this);
+    this.tile.city.addPopulations(Action.DATA[this.type].production, this.state.map);
+  }
+
+  /**
+   * Clone the action
+   * @param {State} state the state state to link the cloned action
+   * @returns the cloned action
+   */
+  clone(state) {
+    return this.type === "end turn"
+      ? new this.constructor(state)
+      : new this.constructor(this.type, state.map.getTile(this.tile.row, this.tile.col), state);
   }
 }
 
@@ -34,10 +45,10 @@ export class Build extends Action {
   /**
    * @param {Building} type
    * @param {TileSimulator} tile
-   * @param {Simulator} simulator
+   * @param {State} state
    */
-  constructor(type, tile, simulator) {
-    super(type, tile, simulator);
+  constructor(type, tile, state) {
+    super(type, tile, state);
   }
 
   apply() {
@@ -50,10 +61,10 @@ export class BuildTemple extends Build {
   /**
    * @param {Temple} type
    * @param {TileSimulator} tile
-   * @param {Simulator} simulator
+   * @param {State} state
    */
-  constructor(type, tile, simulator) {
-    super(type, tile, simulator);
+  constructor(type, tile, state) {
+    super(type, tile, state);
   }
 
   apply() {
@@ -65,10 +76,10 @@ export class BuildExploitation extends Build {
   /**
    * @param {Exploitation} type
    * @param {TileSimulator} tile
-   * @param {Simulator} simulator
+   * @param {State} state
    */
-  constructor(type, tile, simulator) {
-    super(type, tile, simulator);
+  constructor(type, tile, state) {
+    super(type, tile, state);
   }
 
   apply() {
@@ -81,10 +92,10 @@ export class Forage extends Action {
   /**
    * @param {Foraging} type
    * @param {TileSimulator} tile
-   * @param {Simulator} simulator
+   * @param {State} state
    */
-  constructor(type, tile, simulator) {
-    super(type, tile, simulator);
+  constructor(type, tile, state) {
+    super(type, tile, state);
   }
 
   apply() {
@@ -97,10 +108,10 @@ export class Terraform extends Action {
   /**
    * @param {Terraforming} type
    * @param {TileSimulator} tile
-   * @param {Simulator} simulator
+   * @param {State} state
    */
-  constructor(type, tile, simulator) {
-    super(type, tile, simulator);
+  constructor(type, tile, state) {
+    super(type, tile, state);
   }
 
   apply() {
@@ -116,14 +127,14 @@ export class Terraform extends Action {
 
 export class EndTurn extends Action {
   /**
-   * @param {Simulator} simulator
+   * @param {State} state
    */
-  constructor(simulator) {
-    super("end turn", undefined, simulator);
+  constructor(state) {
+    super("end turn", undefined, state);
   }
 
   apply() {
-    this.simulator.endTurn();
+    this.state.endTurn();
   }
 }
 

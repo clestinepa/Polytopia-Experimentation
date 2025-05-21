@@ -1,8 +1,9 @@
 import { Map } from "./Map.js";
 import { Action, EndTurn } from "./Action.js";
 import { MapGenerator } from "../Generator/MapGenerator.js";
+import { runMCTS } from "../MCTS/MCTSRunner.js";
 
-export class Simulator {
+export class State {
   /** @type {Map} */
   map;
 
@@ -15,9 +16,10 @@ export class Simulator {
 
   /**
    * @param {MapGenerator} map
+   * @param {Boolean} isDisplayMap
    */
-  constructor(map) {
-    this.map = new Map(map);
+  constructor(map, isDisplayMap = false) {
+    this.map = new Map(map, isDisplayMap);
   }
 
   get turn() {
@@ -72,9 +74,10 @@ export class Simulator {
   }
 
   next() {
-    const nextAction = this.chooseAction();
-    console.log(nextAction.type);
-    nextAction.apply();
+    this.defineActionsPossible();
+    const bestAction = runMCTS(this, 100);
+    console.log("MCTS chose:", bestAction.type);
+    bestAction.clone(this).apply();
   }
 
   chooseAction() {
@@ -84,10 +87,7 @@ export class Simulator {
 
     for (const action of this.actionsPossible) {
       const clone = this.clone();
-      const testAction =
-        action.type === "end turn"
-          ? new action.constructor(clone)
-          : new action.constructor(action.type, clone.map.getTile(action.tile.row, action.tile.col), clone);
+      const testAction = action.clone(clone);
       testAction.apply();
       const score = clone.evaluateState();
       if (score > bestScore) {
@@ -100,7 +100,7 @@ export class Simulator {
   }
 
   clone() {
-    const newSimulator = new Simulator(new MapGenerator()); //random param, it will be overwrite
+    const newSimulator = new State(new MapGenerator()); //random param, it will be overwrite
     newSimulator.map = this.map.clone();
     newSimulator.turn = this.turn;
     newSimulator.actionsPossible = this.actionsPossible.slice();

@@ -13,6 +13,8 @@ export class Map {
   /** @type {Number} */
   #stars_production;
 
+  /** @type {Boolean} */
+  isDisplayMap;
   /** @type {Size} */
   size;
   /** @type {TileSimulator[]} */
@@ -22,8 +24,10 @@ export class Map {
 
   /**
    * @param {MapGenerator} map
+   * @param {Boolean} isDisplayMap
    */
-  constructor(map) {
+  constructor(map, isDisplayMap = false) {
+    this.isDisplayMap = isDisplayMap;
     this.size = map.size;
     this.tiles = Array.from({ length: this.size ** 2 }, (_, i) => {
       const tile = new TileSimulator(map.tiles[i]);
