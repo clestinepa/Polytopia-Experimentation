@@ -33,7 +33,17 @@ document.getElementById("next").addEventListener("click", () => {
     document.getElementById("next").innerHTML = "Next";
     document.getElementById("prev").style.display = "block";
     document.getElementById("information").style.display = "block";
-  } else state.next();
+  } else {
+    state.next();
+    if (state.actions.length === 1) document.getElementById("prev").disabled = false;
+  }
+
+  display.drawMap(state.map);
+});
+
+document.getElementById("prev").addEventListener("click", () => {
+  state.prev();
+  if (state.actions.length === 0) document.getElementById("prev").disabled = true;
 
   display.drawMap(state.map);
 });

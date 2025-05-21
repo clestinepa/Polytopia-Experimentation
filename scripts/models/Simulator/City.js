@@ -53,6 +53,15 @@ export class City {
     this.total_populations += value;
     map.populations += value;
   }
+  /**
+   * @param {Map} map
+   * @param {Number} value
+   */
+  decreasePopulations(map, value) {
+    this.populations -= value;
+    this.total_populations -= value;
+    map.populations -= value;
+  }
 
   /**
    * @param {Map} map
@@ -61,6 +70,14 @@ export class City {
   increaseStarProduction(map, value = 1) {
     this.stars_production += value;
     map.stars_production += value;
+  }
+  /**
+   * @param {Map} map
+   * @param {Number} value
+   */
+  decreaseStarProduction(map, value = 1) {
+    this.stars_production -= value;
+    map.stars_production -= value;
   }
 
   /**
@@ -78,6 +95,23 @@ export class City {
       else if (this.level >= 5) this.increaseStarProduction(map);
       this.populations -= this.level;
       if (map.isDisplayMap) console.log("City is levelling to level " + this.level);
+    }
+  }
+  /**
+   * @param {Number} value
+   * @param {Map} map
+   */
+  removePopulations(value, map) {
+    this.decreasePopulations(map, value);
+    if (this.populations < 0) {
+      this.level--;
+      this.decreaseStarProduction(map);
+      if (this.level === 1) this.decreaseStarProduction(map);
+      else if (this.level === 2) map.stars -= 5;
+      else if (this.level === 3) this.decreasePopulations(map, 3);
+      else if (this.level >= 4) this.decreaseStarProduction(map);
+      this.populations += this.level + 1;
+      if (map.isDisplayMap) console.log("City is downgrading to level " + this.level);
     }
   }
 

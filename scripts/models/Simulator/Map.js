@@ -51,15 +51,15 @@ export class Map {
 
   set populations(value) {
     this.#populations = value;
-    document.getElementById("populations").innerHTML = this.#populations;
+    if (this.isDisplayMap) document.getElementById("populations").innerHTML = this.#populations;
   }
   set stars(value) {
     this.#stars = value;
-    document.getElementById("stars").innerHTML = this.#stars;
+    if (this.isDisplayMap) document.getElementById("stars").innerHTML = this.#stars;
   }
   set stars_production(value) {
     this.#stars_production = value;
-    document.getElementById("stars_production").innerHTML = this.#stars_production;
+    if (this.isDisplayMap) document.getElementById("stars_production").innerHTML = this.#stars_production;
   }
 
   clone() {

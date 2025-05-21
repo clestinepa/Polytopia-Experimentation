@@ -1,4 +1,4 @@
-import { getRandomIndex } from "../../utils.js";
+import { getRandomElement } from "../../utils.js";
 import { Action } from "../Simulator/Action.js";
 import { State } from "../Simulator/State.js";
 
@@ -76,7 +76,7 @@ export class MCTSNode {
 
     if (untried.length === 0) return null;
 
-    const action = untried[getRandomIndex(untried)];
+    const action = getRandomElement(untried);
     const clone = this.state.clone();
     const clonedAction = action.clone(clone);
     clonedAction.apply();

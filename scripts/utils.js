@@ -26,6 +26,15 @@ export function getRandomIndex(array, condition = () => true) {
 }
 
 /**
+ * @param {any[]} array
+ * @param {(any | undefined) => boolean} condition
+ * @returns {any}
+ */
+export function getRandomElement(array, condition = () => true) {
+  return array[getRandomIndex(array, condition)];
+}
+
+/**
  * @param {Map} map
  * @param {(tile: Tile) => string} className
  * @param {(tile: Tile) => string} text

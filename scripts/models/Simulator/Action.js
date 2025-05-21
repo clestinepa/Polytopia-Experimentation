@@ -29,6 +29,12 @@ export class Action {
     this.tile.city.addPopulations(Action.DATA[this.type].production, this.state.map);
   }
 
+  undo() {
+    this.state.map.stars += Action.DATA[this.type].cost;
+    this.state.actions.splice(this.state.actions.indexOf(this), 1);
+    this.tile.city.removePopulations(Action.DATA[this.type].production, this.state.map);
+  }
+
   /**
    * Clone the action
    * @param {State} state the state state to link the cloned action
@@ -55,6 +61,11 @@ export class Build extends Action {
     super.apply();
     this.tile.building = this.type;
   }
+
+  undo() {
+    super.undo();
+    this.tile.building = null;
+  }
 }
 
 export class BuildTemple extends Build {
@@ -69,6 +80,10 @@ export class BuildTemple extends Build {
 
   apply() {
     super.apply();
+  }
+
+  undo() {
+    super.undo();
   }
 }
 
@@ -86,9 +101,15 @@ export class BuildExploitation extends Build {
     super.apply();
     //increase level of neighbors SpecialBuilding
   }
+  undo() {
+    super.undo();
+  }
 }
 
 export class Forage extends Action {
+  /** @type {Resource | null | undefined} */
+  prevResource;
+
   /**
    * @param {Foraging} type
    * @param {TileSimulator} tile
@@ -100,11 +121,20 @@ export class Forage extends Action {
 
   apply() {
     super.apply();
+    this.prevResource = this.tile.resource;
     this.tile.resource = null;
+  }
+  undo() {
+    super.undo();
+    this.tile.resource = this.prevResource;
+    this.prevResource = undefined;
   }
 }
 
 export class Terraform extends Action {
+  /** @type {Resource | null | undefined} */
+  prevResource;
+
   /**
    * @param {Terraforming} type
    * @param {TileSimulator} tile
@@ -116,12 +146,17 @@ export class Terraform extends Action {
 
   apply() {
     super.apply();
-    this.tile.resource = null;
+    this.prevResource = this.tile.resource;
+    this.tile.resource = this.type === "burn forest" ? "crop" : null;
     if (this.type === "grow forest") this.tile.biome = "forest";
     else this.tile.biome = "field";
-
-    if (this.type === "burn forest") this.tile.resource = "crop";
-    else this.tile.resource = null;
+  }
+  undo() {
+    super.undo();
+    this.tile.resource = this.prevResource;
+    this.prevResource = undefined;
+    if (this.type === "grow forest") this.tile.biome = "field";
+    else this.tile.biome = "forest";
   }
 }
 
@@ -134,7 +169,14 @@ export class EndTurn extends Action {
   }
 
   apply() {
-    this.state.endTurn();
+    this.state.actions.push(this);
+    this.state.turn++;
+    this.state.map.stars += this.state.map.stars_production;
+  }
+  undo() {
+    this.state.actions.splice(this.state.actions.indexOf(this), 1);
+    this.state.turn--;
+    this.state.map.stars -= this.state.map.stars_production;
   }
 }
 

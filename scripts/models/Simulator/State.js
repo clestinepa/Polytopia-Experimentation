@@ -60,12 +60,6 @@ export class State {
     });
   }
 
-  endTurn() {
-    this.actions.push("end turn");
-    this.turn++;
-    this.map.stars += this.map.stars_production;
-  }
-
   start() {
     this.turn = 0;
     this.map.populations = 0;
@@ -78,6 +72,12 @@ export class State {
     const bestAction = runMCTS(this, 100);
     console.log("MCTS chose:", bestAction.type);
     bestAction.clone(this).apply();
+  }
+
+  prev() {
+    const lastAction = this.actions[this.actions.length - 1];
+    console.log("Undo:", lastAction.type);
+    lastAction.undo();
   }
 
   chooseAction() {
