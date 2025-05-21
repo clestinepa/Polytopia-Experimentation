@@ -36,7 +36,7 @@ export class Simulator {
       this.actionsPossible.push(action);
     }
   }
-  _defineActionsPossible() {
+  defineActionsPossible() {
     this.actionsPossible = [new EndTurn(this)];
     this.map.tiles.forEach((tile) => {
       if (!tile.city || tile.building) return;
@@ -78,17 +78,16 @@ export class Simulator {
   }
 
   chooseAction() {
-    this._defineActionsPossible();
+    this.defineActionsPossible();
     let bestScore = -Infinity;
     let bestAction = null;
 
     for (const action of this.actionsPossible) {
       const clone = this.clone();
-      /** @type {Action} */
-      let testAction;
-      if (action.type !== "end turn")
-        testAction = new action.constructor(action.type, clone.map.getTile(action.tile.row, action.tile.col), clone);
-      else testAction = new action.constructor(clone);
+      const testAction =
+        action.type === "end turn"
+          ? new action.constructor(clone)
+          : new action.constructor(action.type, clone.map.getTile(action.tile.row, action.tile.col), clone);
       testAction.apply();
       const score = clone.evaluateState();
       if (score > bestScore) {
