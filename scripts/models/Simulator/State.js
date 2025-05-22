@@ -112,6 +112,14 @@ export class State {
   }
 
   evaluateState() {
-    return this.populations * 10 - this.turn * 3;
+    return this.populations * 10 + this.stars - this.turn * 3;
+  }
+
+  /**
+   * @returns {Boolean} true if the game is in a terminal state
+   */
+  get isTerminal() {
+    if (this.map.isDisplayMap) console.log(this.actionsPossible, this.stars);
+    return this.actionsPossible.length === 1 && this.stars >= Action.MAX_COST;
   }
 }

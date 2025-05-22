@@ -47,7 +47,7 @@ export function runMCTS(rootState, iterations = 100) {
 function simulateRandomGame(state, depth = 10) {
   for (let i = 0; i < depth; i++) {
     state.defineActionsPossible();
-    if (state.actionsPossible.length === 0) break;
+    if (state.isTerminal) break;
 
     const action = state.chooseAction();
     action.apply();

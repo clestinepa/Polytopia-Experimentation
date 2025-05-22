@@ -195,3 +195,5 @@ Action.DATA = {
   "burn forest": { cost: 5, production: 0, class: Terraform },
   "grow forest": { cost: 5, production: 0, class: Terraform },
 };
+
+Action.MAX_COST = 20;
