@@ -24,15 +24,15 @@ export class Action {
   }
 
   apply() {
-    this.state.map.stars -= Action.DATA[this.type].cost;
+    this.state.stars -= Action.DATA[this.type].cost;
     this.state.actions.push(this);
-    this.tile.city.addPopulations(Action.DATA[this.type].production, this.state.map);
+    this.tile.city.addPopulations(Action.DATA[this.type].production, this.state);
   }
 
   undo() {
-    this.state.map.stars += Action.DATA[this.type].cost;
+    this.state.stars += Action.DATA[this.type].cost;
     this.state.actions.splice(this.state.actions.indexOf(this), 1);
-    this.tile.city.removePopulations(Action.DATA[this.type].production, this.state.map);
+    this.tile.city.removePopulations(Action.DATA[this.type].production, this.state);
   }
 
   /**
@@ -173,12 +173,12 @@ export class EndTurn extends Action {
   apply() {
     this.state.actions.push(this);
     this.state.turn++;
-    this.state.map.stars += this.state.map.stars_production;
+    this.state.stars += this.state.stars_production;
   }
   undo() {
     this.state.actions.splice(this.state.actions.indexOf(this), 1);
     this.state.turn--;
-    this.state.map.stars -= this.state.map.stars_production;
+    this.state.stars -= this.state.stars_production;
   }
 }
 

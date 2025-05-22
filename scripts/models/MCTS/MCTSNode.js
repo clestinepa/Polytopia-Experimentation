@@ -27,26 +27,12 @@ export class MCTSNode {
     this.action = action;
   }
 
-  //   /**
-  //    * @returns {Number} the average evaluation score of this node
-  //    */
-  //   get averageScore() {
-  //     return this.visits === 0 ? 0 : this.totalScore / this.visits;
-  //   }
-
   /**
    * @returns {Boolean} true if all possible actions have been expanded
    */
   isFullyExpanded() {
     return this.children.length === this.state.actionsPossible.length;
   }
-
-  //   /**
-  //    * @returns {Boolean} true if the game is in a terminal state
-  //    */
-  //   isTerminal() {
-  //     return this.state.turn >= 30;
-  //   }
 
   /**
    * Computes the Upper Confidence Bound for Trees (UCT) value for this node.

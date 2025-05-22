@@ -8,7 +8,14 @@ export class State {
   map;
 
   /** @type {Number} */
-  #turn;
+  populations;
+  /** @type {Number} */
+  stars;
+  /** @type {Number} */
+  stars_production;
+
+  /** @type {Number} */
+  turn;
   /** @type {Action[]} */
   actionsPossible = [];
   /** @type {Action[]} */
@@ -22,17 +29,8 @@ export class State {
     this.map = new Map(map, isDisplayMap);
   }
 
-  get turn() {
-    return this.#turn;
-  }
-
-  set turn(value) {
-    this.#turn = value;
-    document.getElementById("turn").innerHTML = this.#turn;
-  }
-
   _addActionPossible(type, tile) {
-    if (this.map.stars >= Action.DATA[type].cost) {
+    if (this.stars >= Action.DATA[type].cost) {
       const ActionClass = Action.DATA[type].class;
       const action = new ActionClass(type, tile, this);
       this.actionsPossible.push(action);
@@ -63,9 +61,9 @@ export class State {
 
   start() {
     this.turn = 0;
-    this.map.populations = 0;
-    this.map.stars = 5;
-    this.map.stars_production = 2;
+    this.populations = 0;
+    this.stars = 5;
+    this.stars_production = 2;
   }
 
   next() {
@@ -101,7 +99,11 @@ export class State {
   }
 
   clone() {
-    const newSimulator = new State(new MapGenerator()); //random param, it will be overwrite
+    /** @type {State} */
+    const newSimulator = Object.create(State.prototype);
+    newSimulator.populations = this.populations;
+    newSimulator.stars = this.stars;
+    newSimulator.stars_production = this.stars_production;
     newSimulator.map = this.map.clone();
     newSimulator.turn = this.turn;
     newSimulator.actionsPossible = this.actionsPossible.slice();
@@ -110,6 +112,6 @@ export class State {
   }
 
   evaluateState() {
-    return this.map.populations * 10 - this.turn * 3;
+    return this.populations * 10 - this.turn * 3;
   }
 }

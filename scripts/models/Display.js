@@ -2,6 +2,7 @@ import { assets } from "../assets.js";
 import { MapGenerator } from "./Generator/MapGenerator.js";
 import { City } from "./Simulator/City.js";
 import { Map } from "./Simulator/Map.js";
+import { State } from "./Simulator/State.js";
 
 export class Display {
   static default_asset = "field"; //name of the asset used to calculate height and width
@@ -126,5 +127,16 @@ export class Display {
     this.canvas.clearRect(0, 0, canvas_html.width, canvas_html.height);
     this._drawTiles(map);
     if (map.cities) this._drawBorderCities(map.cities);
+  }
+
+  /**
+   * @param {State} state
+   */
+  drawState(state) {
+    this.drawMap(state.map);
+    document.getElementById("turn").innerHTML = state.turn;
+    document.getElementById("populations").innerHTML = state.populations;
+    document.getElementById("stars").innerHTML = state.stars;
+    document.getElementById("stars_production").innerHTML = state.stars_production;
   }
 }

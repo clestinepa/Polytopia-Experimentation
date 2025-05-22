@@ -6,13 +6,6 @@ import { TileSimulator } from "./TileSimulator.js";
 export class Map {
   static tribe = "Ai-mo";
 
-  /** @type {Number} */
-  #populations;
-  /** @type {Number} */
-  #stars;
-  /** @type {Number} */
-  #stars_production;
-
   /** @type {Boolean} */
   isDisplayMap;
   /** @type {Size} */
@@ -39,34 +32,8 @@ export class Map {
     });
   }
 
-  get populations() {
-    return this.#populations;
-  }
-  get stars() {
-    return this.#stars;
-  }
-  get stars_production() {
-    return this.#stars_production;
-  }
-
-  set populations(value) {
-    this.#populations = value;
-    if (this.isDisplayMap) document.getElementById("populations").innerHTML = this.#populations;
-  }
-  set stars(value) {
-    this.#stars = value;
-    if (this.isDisplayMap) document.getElementById("stars").innerHTML = this.#stars;
-  }
-  set stars_production(value) {
-    this.#stars_production = value;
-    if (this.isDisplayMap) document.getElementById("stars_production").innerHTML = this.#stars_production;
-  }
-
   clone() {
     const newMap = new Map(new MapGenerator(this.size));
-    newMap.populations = this.populations;
-    newMap.stars = this.stars;
-    newMap.stars_production = this.stars_production;
     newMap.tiles = this.tiles.map((tile) => tile.clone());
     newMap.cities = this.cities.map((city) => city.clone());
     //link cities and tiles together

@@ -1,5 +1,4 @@
-import { TileGenerator } from "../Generator/TileGenerator.js";
-import { Map } from "./Map.js";
+import { State } from "./State.js";
 import { TileSimulator } from "./TileSimulator.js";
 
 export class City {
@@ -45,80 +44,80 @@ export class City {
   }
 
   /**
-   * @param {Map} map
+   * @param {State} state
    * @param {Number} value
    */
-  increasePopulations(map, value) {
+  increasePopulations(state, value) {
     this.populations += value;
     this.total_populations += value;
-    map.populations += value;
+    state.populations += value;
   }
   /**
-   * @param {Map} map
+   * @param {State} state
    * @param {Number} value
    */
-  decreasePopulations(map, value) {
+  decreasePopulations(state, value) {
     this.populations -= value;
     this.total_populations -= value;
-    map.populations -= value;
+    state.populations -= value;
   }
 
   /**
-   * @param {Map} map
+   * @param {State} state
    * @param {Number} value
    */
-  increaseStarProduction(map, value = 1) {
+  increaseStarProduction(state, value = 1) {
     this.stars_production += value;
-    map.stars_production += value;
+    state.stars_production += value;
   }
   /**
-   * @param {Map} map
+   * @param {State} state
    * @param {Number} value
    */
-  decreaseStarProduction(map, value = 1) {
+  decreaseStarProduction(state, value = 1) {
     this.stars_production -= value;
-    map.stars_production -= value;
+    state.stars_production -= value;
   }
 
   /**
    * @param {Number} value
-   * @param {Map} map
+   * @param {State} state
    */
-  addPopulations(value, map) {
-    this.increasePopulations(map, value);
+  addPopulations(value, state) {
+    this.increasePopulations(state, value);
     if (this.populations >= this.level + 1) {
       this.level++;
-      this.increaseStarProduction(map);
-      if (this.level === 2) this.increaseStarProduction(map);
-      else if (this.level === 3) map.stars += 5;
-      else if (this.level === 4) this.increasePopulations(map, 3);
-      else if (this.level >= 5) this.increaseStarProduction(map);
+      this.increaseStarProduction(state);
+      if (this.level === 2) this.increaseStarProduction(state);
+      else if (this.level === 3) state.stars += 5;
+      else if (this.level === 4) this.increasePopulations(state, 3);
+      else if (this.level >= 5) this.increaseStarProduction(state);
       this.populations -= this.level;
-      if (map.isDisplayMap) console.log("City is levelling to level " + this.level);
+      if (state.map.isDisplayMap) console.log("City is levelling to level " + this.level);
     }
   }
   /**
    * @param {Number} value
-   * @param {Map} map
+   * @param {State} state
    */
-  removePopulations(value, map) {
-    this.decreasePopulations(map, value);
+  removePopulations(value, state) {
+    this.decreasePopulations(state, value);
     if (this.populations < 0) {
       this.level--;
-      this.decreaseStarProduction(map);
-      if (this.level === 1) this.decreaseStarProduction(map);
-      else if (this.level === 2) map.stars -= 5;
-      else if (this.level === 3) this.decreasePopulations(map, 3);
-      else if (this.level >= 4) this.decreaseStarProduction(map);
+      this.decreaseStarProduction(state);
+      if (this.level === 1) this.decreaseStarProduction(state);
+      else if (this.level === 2) state.stars -= 5;
+      else if (this.level === 3) this.decreasePopulations(state, 3);
+      else if (this.level >= 4) this.decreaseStarProduction(state);
       this.populations += this.level + 1;
-      if (map.isDisplayMap) console.log("City is downgrading to level " + this.level);
+      if (state.map.isDisplayMap) console.log("City is downgrading to level " + this.level);
     }
   }
 
   /** Clone without tiles */
   clone() {
     /** @type {City} */
-    const newCity = Object.create(City.prototype); //random param, they will be overwrite
+    const newCity = Object.create(City.prototype);
     newCity.city_id = this.city_id;
     newCity.level = this.level;
     newCity.populations = this.populations;

@@ -3,6 +3,11 @@ import { State } from "./scripts/models/Simulator/State.js";
 import { MapGenerator } from "./scripts/models/Generator/MapGenerator.js";
 import { Display } from "./scripts/models/Display.js";
 
+const prevButton = document.getElementById("prev");
+const nextButton = document.getElementById("next");
+const runButton = document.getElementById("run");
+const information = document.getElementById("information");
+
 /** @type {MapGenerator | undefined} */
 let mapGeneration;
 
@@ -19,33 +24,49 @@ document.getElementById("generate").addEventListener("click", () => {
 
   mapGeneration.generate();
   display.drawMap(mapGeneration);
-
-  document.getElementById("next").disabled = false;
-  document.getElementById("next").innerHTML = "Start";
-  document.getElementById("prev").style.display = "none";
-  document.getElementById("information").style.display = "none";
+  generateButtons();
 });
 
-document.getElementById("next").addEventListener("click", () => {
+prevButton.addEventListener("click", () => {
+  state.prev();
+  disablePrev();
+
+  display.drawState(state);
+});
+
+nextButton.addEventListener("click", () => {
   if (!state) {
     state = new State(mapGeneration, true);
     state.start();
-    document.getElementById("next").innerHTML = "Next";
-    document.getElementById("prev").style.display = "block";
-    document.getElementById("information").style.display = "block";
+    startButtons();
   } else {
     state.next();
-    if (state.actions.length === 1) document.getElementById("prev").disabled = false;
+    ablePrev();
   }
 
-  display.drawMap(state.map);
+  display.drawState(state);
 });
 
-document.getElementById("prev").addEventListener("click", () => {
-  state.prev();
-  if (state.actions.length === 0) document.getElementById("prev").disabled = true;
-
-  display.drawMap(state.map);
-});
 
 document.addEventListener("DOMContentLoaded", get_assets);
+
+function generateButtons() {
+  prevButton.style.display = "none";
+  prevButton.disabled = true;
+  nextButton.innerHTML = "Start";
+  nextButton.style.display = "block";
+  runButton.style.display = "none";
+  information.style.display = "none";
+}
+function startButtons() {
+  prevButton.style.display = "block";
+  nextButton.innerHTML = "Next";
+  runButton.style.display = "block";
+  information.style.display = "block";
+}
+function ablePrev() {
+  if (state.actions.length === 1) prevButton.disabled = false;
+}
+function disablePrev() {
+  if (state.actions.length === 0) prevButton.disabled = true;
+}
