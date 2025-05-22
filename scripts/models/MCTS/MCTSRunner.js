@@ -3,11 +3,12 @@ import { MCTSNode } from "./MCTSNode.js";
 
 /**
  * Runs the Monte Carlo Tree Search algorithm starting from the root node.
- * @param {State} rootState the initial game state.
+ * @param {State} rootState the initial game state
+ * @param {Boolean} verbose display log if true
  * @param {Number} iterations he number of MCTS iterations to perform, 100 by default
- * @returns {MCTSNode} the best child node to take next (highest average score).
+ * @returns {MCTSNode} the best child node to take next (highest average score)
  */
-export function runMCTS(rootState, iterations = 100) {
+export function runMCTS(rootState, verbose, iterations = 100) {
   const root = new MCTSNode(rootState.clone());
 
   for (let i = 0; i < iterations; i++) {
@@ -33,8 +34,23 @@ export function runMCTS(rootState, iterations = 100) {
     }
   }
 
+  if (verbose) {
+    console.log(`[RESULT] All children:`);
+    root.children.forEach((child) => {
+      const a = child.action;
+      console.log(
+        `- Action: ${a.type} on (${a.tile?.row}, ${a.tile?.col}) | Visits: ${child.visits} | Average: ${child.averageScore}`
+      );
+    });
+  }
+
   // Return the most visited child
   const bestChild = root.children.reduce((a, b) => (a.visits > b.visits ? a : b));
+  if (verbose)
+    console.log(
+      `[BEST] ${bestChild.action.type} on (${bestChild.action.tile?.row}, ${bestChild.action.tile?.col}) | Visits: ${bestChild.visits} | Average: ${bestChild.averageScore}`
+    );
+
   return bestChild.action;
 }
 

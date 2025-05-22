@@ -71,4 +71,11 @@ export class MCTSNode {
     this.children.push(child);
     return child;
   }
+
+  /**
+   * @returns {Number} the average evaluation score of this node
+   */
+  get averageScore() {
+    return this.visits === 0 ? 0 : this.score / this.visits;
+  }
 }

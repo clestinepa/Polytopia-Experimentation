@@ -66,9 +66,9 @@ export class State {
     this.stars_production = 2;
   }
 
-  next() {
+  next(verbose = true) {
     this.defineActionsPossible();
-    const bestAction = runMCTS(this, 100);
+    const bestAction = runMCTS(this, verbose);
     console.log("MCTS chose:", bestAction.type);
     bestAction.clone(this).apply();
   }
