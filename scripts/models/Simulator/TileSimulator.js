@@ -16,6 +16,8 @@ export class TileSimulator extends Tile {
   resource;
   /** @type {Building | null} */
   building = null;
+  /** @type {Terraforming[] | null} */
+  terraform = null;
 
   /**
    * @param {TileGenerator} tileGenerator
@@ -23,6 +25,7 @@ export class TileSimulator extends Tile {
   constructor(tileGenerator) {
     super(tileGenerator.row, tileGenerator.col);
     this.biome = tileGenerator.biome;
+    if (this.biome !== "mountain") this.terraform = [];
     this.resource = tileGenerator.resource;
     this.known = tileGenerator.known;
   }
@@ -35,6 +38,7 @@ export class TileSimulator extends Tile {
     newTile.biome = this.biome;
     newTile.resource = this.resource;
     newTile.building = this.building;
+    newTile.terraform = this.terraform ? this.terraform.slice() : null;
     return newTile;
   }
 }

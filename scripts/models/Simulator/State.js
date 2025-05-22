@@ -48,14 +48,15 @@ export class State {
       } else if (tile.biome === "forest") {
         if (tile.resource === "animal") this._addActionPossible("hunting", tile);
         this._addActionPossible("forest temple", tile);
-        this._addActionPossible("clear forest", tile);
-        this._addActionPossible("burn forest", tile);
+        if (tile.terraform.length === 0) this._addActionPossible("clear forest", tile);
+        if (tile.terraform.length === 0 || (tile.terraform.length === 1 && tile.terraform[0] === "grow forest"))
+          this._addActionPossible("burn forest", tile);
         this._addActionPossible("lumber hut", tile);
       } else if (tile.biome === "field") {
         if (tile.resource === "fruit") this._addActionPossible("harvest", tile);
         if (tile.resource === "crop") this._addActionPossible("farm", tile);
         this._addActionPossible("temple", tile);
-        this._addActionPossible("grow forest", tile);
+        if (tile.terraform.length === 0) this._addActionPossible("grow forest", tile);
       }
     });
   }

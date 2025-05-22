@@ -150,6 +150,7 @@ export class Terraform extends Action {
     this.tile.resource = this.type === "burn forest" ? "crop" : null;
     if (this.type === "grow forest") this.tile.biome = "forest";
     else this.tile.biome = "field";
+    this.tile.terraform.push(this.type);
   }
   undo() {
     super.undo();
@@ -157,6 +158,7 @@ export class Terraform extends Action {
     this.prevResource = undefined;
     if (this.type === "grow forest") this.tile.biome = "field";
     else this.tile.biome = "forest";
+    this.tile.terraform.splice(this.tile.terraform.indexOf(this.type), 1);
   }
 }
 
