@@ -1,3 +1,4 @@
+import { getRandomElement } from "../../utils.js";
 import { State } from "./State.js";
 import { TileSimulator } from "./TileSimulator.js";
 
@@ -7,8 +8,10 @@ export class Action {
   /** @type {TypeAction} */
   type;
 
-  /** @type {TileSimulator} */
+  /** @type {TileSimulator | undefined} */
   tile;
+  /** @type {TileSimulator[]} */
+  tilesPossible;
   /** @type {State} */
   state;
 
@@ -19,11 +22,13 @@ export class Action {
    */
   constructor(type, tile, state) {
     this.type = type;
-    this.tile = tile;
+    this.tilesPossible = [tile];
     this.state = state;
   }
 
   apply() {
+    this.tile = getRandomElement(this.tilesPossible);
+    if (this.state.map.isDisplayMap) console.log(`Apply here on (${this.tile.row}, ${this.tile.col})`);
     this.state.stars -= Action.DATA[this.type].cost;
     this.state.actions.push(this);
     this.tile.city.addPopulations(Action.DATA[this.type].production, this.state);
@@ -35,15 +40,23 @@ export class Action {
     this.tile.city.removePopulations(Action.DATA[this.type].production, this.state);
   }
 
+  addPossibleTile(tile) {
+    this.tilesPossible.push(tile);
+  }
+
   /**
    * Clone the action
    * @param {State} state the state state to link the cloned action
    * @returns the cloned action
    */
   clone(state) {
-    return this.type === "end turn"
-      ? new this.constructor(state)
-      : new this.constructor(this.type, state.map.getTile(this.tile.row, this.tile.col), state);
+    const newAction = Object.create(Action.DATA[this.type].class.prototype);
+    newAction.type = this.type;
+    newAction.tile = this.tile ? state.map.getTile(this.tile.row, this.tile.col) : undefined;
+    newAction.tilesPossible = this.tilesPossible.map((tile) => state.map.getTile(tile.row, tile.col));
+    newAction.state = state;
+
+    return newAction;
   }
 }
 
@@ -160,6 +173,17 @@ export class Terraform extends Action {
     else this.tile.biome = "forest";
     this.tile.terraform.splice(this.tile.terraform.indexOf(this.type), 1);
   }
+
+  /**
+   * Clone the action
+   * @param {State} state the state state to link the cloned action
+   * @returns {Action} the cloned action
+   */
+  clone(state) {
+    const newAction = super.clone(state);
+    newAction.prevResource = this.prevResource;
+    return newAction;
+  }
 }
 
 export class EndTurn extends Action {
@@ -179,6 +203,15 @@ export class EndTurn extends Action {
     this.state.actions.splice(this.state.actions.indexOf(this), 1);
     this.state.turn--;
     this.state.stars -= this.state.stars_production;
+  }
+
+  /**
+   * Clone the action
+   * @param {State} state the state state to link the cloned action
+   * @returns {Action} the cloned action
+   */
+  clone(state) {
+    return new EndTurn(state);
   }
 }
 

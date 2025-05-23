@@ -31,9 +31,13 @@ export class State {
 
   _addActionPossible(type, tile) {
     if (this.stars >= Action.DATA[type].cost) {
-      const ActionClass = Action.DATA[type].class;
-      const action = new ActionClass(type, tile, this);
-      this.actionsPossible.push(action);
+      const existingAction = this.actionsPossible.find((action) => action.type === type);
+      if (existingAction) existingAction.addPossibleTile(tile);
+      else {
+        const ActionClass = Action.DATA[type].class;
+        const action = new ActionClass(type, tile, this);
+        this.actionsPossible.push(action);
+      }
     }
   }
   defineActionsPossible() {
@@ -68,14 +72,15 @@ export class State {
 
   next(verbose = true) {
     this.defineActionsPossible();
+    console.log(this.actionsPossible);
     const bestAction = runMCTS(this, verbose);
-    console.log("MCTS chose:", bestAction.type);
-    bestAction.clone(this).apply();
+    console.log("MCTS choose:", bestAction.type);
+    bestAction.apply();
   }
 
   prev() {
     const lastAction = this.actions[this.actions.length - 1];
-    console.log("Undo:", lastAction.type);
+    // console.log("Undo:", lastAction.type);
     lastAction.undo();
   }
 
@@ -112,14 +117,14 @@ export class State {
   }
 
   evaluateState() {
-    return this.populations * 10 + this.stars - this.turn * 3;
+    return this.populations * 10;
   }
 
   /**
    * @returns {Boolean} true if the game is in a terminal state
    */
   get isTerminal() {
-    if (this.map.isDisplayMap) console.log(this.actionsPossible, this.stars);
+    this.defineActionsPossible();
     return this.actionsPossible.length === 1 && this.stars >= Action.MAX_COST;
   }
 }

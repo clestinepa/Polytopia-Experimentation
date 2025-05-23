@@ -1,3 +1,4 @@
+import { Action } from "../Simulator/Action.js";
 import { State } from "../Simulator/State.js";
 import { MCTSNode } from "./MCTSNode.js";
 
@@ -6,7 +7,7 @@ import { MCTSNode } from "./MCTSNode.js";
  * @param {State} rootState the initial game state
  * @param {Boolean} verbose display log if true
  * @param {Number} iterations he number of MCTS iterations to perform, 100 by default
- * @returns {MCTSNode} the best child node to take next (highest average score)
+ * @returns the best action to take next node (highest average score)
  */
 export function runMCTS(rootState, verbose, iterations = 100) {
   const root = new MCTSNode(rootState.clone());
@@ -38,20 +39,16 @@ export function runMCTS(rootState, verbose, iterations = 100) {
     console.log(`[RESULT] All children:`);
     root.children.forEach((child) => {
       const a = child.action;
-      console.log(
-        `- Action: ${a.type} on (${a.tile?.row}, ${a.tile?.col}) | Visits: ${child.visits} | Average: ${child.averageScore}`
-      );
+      console.log(`- Action: ${a.type} | Visits: ${child.visits} | Average: ${child.averageScore}`);
     });
   }
 
   // Return the most visited child
   const bestChild = root.children.reduce((a, b) => (a.visits > b.visits ? a : b));
   if (verbose)
-    console.log(
-      `[BEST] ${bestChild.action.type} on (${bestChild.action.tile?.row}, ${bestChild.action.tile?.col}) | Visits: ${bestChild.visits} | Average: ${bestChild.averageScore}`
-    );
+    console.log(`[BEST] ${bestChild.action.type} | Visits: ${bestChild.visits} | Average: ${bestChild.averageScore}`);
 
-  return bestChild.action;
+  return bestChild.action.clone(rootState);
 }
 
 /**
