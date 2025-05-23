@@ -47,6 +47,16 @@ nextButton.addEventListener("click", () => {
   display.drawState(state);
 });
 
+runButton.addEventListener("click", () => {
+  if (!state) {
+    state = new State(mapGeneration, true);
+    state.start();
+  }
+  while (!state.isTerminal && state.stars < 500) state.next();
+  ablePrev();
+
+  display.drawState(state);
+});
 
 document.addEventListener("DOMContentLoaded", get_assets);
 
