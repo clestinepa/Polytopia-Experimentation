@@ -35,13 +35,13 @@ function get_colored_svg(src) {
 }
 
 export let get_assets = new Promise((resolve) => {
-  for (let img of images) assets[img] = get_image(`/assets/${img}.png`);
-  for (let img of tribe_images) assets[img] = get_image(`/assets/${Map.tribe}/${Map.tribe} ${img}.png`);
+  for (let img of images) assets[img] = get_image(`assets/${img}.png`);
+  for (let img of tribe_images) assets[img] = get_image(`assets/${Map.tribe}/${Map.tribe} ${img}.png`);
 
   assets["borders"] = [];
   for (let svg of borders) {
-    assets["borders"][svg] = get_colored_svg(`/assets/borders/${svg}.svg`);
-    assets["borders"][`corner ${svg}`] = get_colored_svg(`/assets/borders/corner ${svg}.svg`);
+    assets["borders"][svg] = get_colored_svg(`assets/borders/${svg}.svg`);
+    assets["borders"][`corner ${svg}`] = get_colored_svg(`assets/borders/corner ${svg}.svg`);
   }
 
   resolve();
