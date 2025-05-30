@@ -3,8 +3,6 @@ import { State } from "./State.js";
 import { TileSimulator } from "./TileSimulator.js";
 
 export class Action {
-  static DATA = {};
-
   /** @type {TypeAction} */
   type;
 
@@ -215,7 +213,16 @@ export class EndTurn extends Action {
   }
 }
 
+/**
+ * @typedef {"mountain temple" | "forest temple" | "temple"} Temple
+ * @typedef {"farm" | "mine" | "lumber hut" } Exploitation
+ * @typedef {Exploitation | Temple} Building
+ * @typedef {"harvest" | "hunting" } Foraging
+ * @typedef {"clear forest" | "burn forest" | "grow forest"} Terraforming
+ * @typedef {Building | Foraging | Terraforming | "end turn"} TypeAction
+ */
 Action.DATA = {
+  "end turn": { cost: 0, production: 0, class: EndTurn },
   "forest temple": { cost: 15, production: 1, class: BuildTemple },
   "mountain temple": { cost: 20, production: 1, class: BuildTemple },
   temple: { cost: 20, production: 1, class: BuildTemple },

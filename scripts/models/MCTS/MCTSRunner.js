@@ -9,7 +9,7 @@ import { MCTSNode } from "./MCTSNode.js";
  * @param {Number} iterations he number of MCTS iterations to perform, 100 by default
  * @returns the best action to take next node (highest average score)
  */
-export function runMCTS(rootState, verbose, iterations = 100) {
+export function runMCTS(rootState, verbose, iterations = 1) {
   const root = new MCTSNode(rootState.clone());
 
   for (let i = 0; i < iterations; i++) {

@@ -72,9 +72,8 @@ export class State {
 
   next(verbose = true) {
     this.defineActionsPossible();
-    console.log(this.actionsPossible);
     const bestAction = runMCTS(this, verbose);
-    console.log("MCTS choose:", bestAction.type);
+    // console.log("MCTS choose:", bestAction.type);
     bestAction.apply();
   }
 
@@ -94,12 +93,13 @@ export class State {
       const testAction = action.clone(clone);
       testAction.apply();
       const score = clone.evaluateState();
+      console.log(score);
       if (score > bestScore) {
         bestScore = score;
         bestAction = action;
       }
     }
-
+    console.log(bestAction);
     return bestAction;
   }
 
@@ -117,7 +117,11 @@ export class State {
   }
 
   evaluateState() {
-    return this.populations * 10;
+    const nextGreedyAction = this.actionsPossible.reduce((a, b) =>
+      Action.DATA[a.type].production >= Action.DATA[b.type].production ? a : b
+    );
+    console.log(this.actionsPossible, nextGreedyAction, Action.DATA[nextGreedyAction.type].production)
+    return this.populations + nextGreedyAction.production;
   }
 
   /**
