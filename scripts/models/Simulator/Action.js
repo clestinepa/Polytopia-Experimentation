@@ -2,6 +2,10 @@ import { getRandomElement } from "../../utils.js";
 import { State } from "./State.js";
 import { TileSimulator } from "./TileSimulator.js";
 
+/**
+ * @typedef {Action | BuildTemple | BuildExploitation | Forage | Terraform | EndTurn} ActionClass
+ */
+
 export class Action {
   /** @type {TypeAction} */
   type;
@@ -25,17 +29,16 @@ export class Action {
   }
 
   apply() {
-    this.tile = getRandomElement(this.tilesPossible);
-    if (this.state.map.isDisplayMap) console.log(`Apply here on (${this.tile.row}, ${this.tile.col})`);
+    if (!this.tile) this.tile = getRandomElement(this.tilesPossible);
     this.state.stars -= Action.DATA[this.type].cost;
-    this.state.actions.push(this);
     this.tile.city.addPopulations(Action.DATA[this.type].production, this.state);
+    if (this.state.map.isDisplayMap) console.log(`Apply ${this.type} on (${this.tile.row}, ${this.tile.col})`);
   }
 
   undo() {
     this.state.stars += Action.DATA[this.type].cost;
-    this.state.actions.splice(this.state.actions.indexOf(this), 1);
     this.tile.city.removePopulations(Action.DATA[this.type].production, this.state);
+    if (this.state.map.isDisplayMap) console.log(`Undo ${this.type} on (${this.tile.row}, ${this.tile.col})`);
   }
 
   addPossibleTile(tile) {
@@ -193,14 +196,14 @@ export class EndTurn extends Action {
   }
 
   apply() {
-    this.state.actions.push(this);
     this.state.turn++;
     this.state.stars += this.state.stars_production;
+    if (this.state.map.isDisplayMap) console.log(`Apply end turn : ${this.state.turn - 1} to ${this.state.turn}`);
   }
   undo() {
-    this.state.actions.splice(this.state.actions.indexOf(this), 1);
     this.state.turn--;
     this.state.stars -= this.state.stars_production;
+    if (this.state.map.isDisplayMap) console.log(`Undo end turn : ${this.state.turn} to ${this.state.turn - 1}`);
   }
 
   /**
@@ -213,14 +216,6 @@ export class EndTurn extends Action {
   }
 }
 
-/**
- * @typedef {"mountain temple" | "forest temple" | "temple"} Temple
- * @typedef {"farm" | "mine" | "lumber hut" } Exploitation
- * @typedef {Exploitation | Temple} Building
- * @typedef {"harvest" | "hunting" } Foraging
- * @typedef {"clear forest" | "burn forest" | "grow forest"} Terraforming
- * @typedef {Building | Foraging | Terraforming | "end turn"} TypeAction
- */
 Action.DATA = {
   "end turn": { cost: 0, production: 0, class: EndTurn },
   "forest temple": { cost: 15, production: 1, class: BuildTemple },

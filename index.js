@@ -29,7 +29,7 @@ document.getElementById("generate").addEventListener("click", () => {
 
 prevButton.addEventListener("click", () => {
   state.prev();
-  disablePrev();
+  changeDisablePrev();
 
   display.drawState(state);
 });
@@ -41,7 +41,7 @@ nextButton.addEventListener("click", () => {
     startButtons();
   } else {
     state.next();
-    ablePrev();
+    changeDisablePrev();
   }
 
   display.drawState(state);
@@ -53,7 +53,7 @@ runButton.addEventListener("click", () => {
     state.start();
   }
   while (!state.isTerminal && state.stars < 500) state.next();
-  ablePrev();
+  changeDisablePrev();
 
   display.drawState(state);
 });
@@ -74,9 +74,8 @@ function startButtons() {
   runButton.style.display = "block";
   information.style.display = "block";
 }
-function ablePrev() {
-  if (state.actions.length === 1) prevButton.disabled = false;
-}
-function disablePrev() {
-  if (state.actions.length === 0) prevButton.disabled = true;
+
+function changeDisablePrev() {
+  if (state.indexActions === -1) prevButton.disabled = true;
+  else prevButton.disabled = false;
 }

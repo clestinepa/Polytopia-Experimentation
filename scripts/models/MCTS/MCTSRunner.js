@@ -1,3 +1,4 @@
+import { getRandomElement } from "../../utils.js";
 import { Action } from "../Simulator/Action.js";
 import { State } from "../Simulator/State.js";
 import { MCTSNode } from "./MCTSNode.js";
@@ -7,9 +8,9 @@ import { MCTSNode } from "./MCTSNode.js";
  * @param {State} rootState the initial game state
  * @param {Boolean} verbose display log if true
  * @param {Number} iterations he number of MCTS iterations to perform, 100 by default
- * @returns the best action to take next node (highest average score)
+ * @returns {import("../Simulator/Action.js").ActionClass} the best action to take next node (highest average score)
  */
-export function runMCTS(rootState, verbose, iterations = 1) {
+export function runMCTS(rootState, verbose, iterations = 1000) {
   const root = new MCTSNode(rootState.clone());
 
   for (let i = 0; i < iterations; i++) {
@@ -35,18 +36,17 @@ export function runMCTS(rootState, verbose, iterations = 1) {
     }
   }
 
+  const bestChild = root.children.reduce((a, b) => (a.visits > b.visits ? a : b));
+
+  if (bestChild.action.type === "clear forest") verbose = true;
   if (verbose) {
     console.log(`[RESULT] All children:`);
     root.children.forEach((child) => {
       const a = child.action;
       console.log(`- Action: ${a.type} | Visits: ${child.visits} | Average: ${child.averageScore}`);
     });
-  }
-
-  // Return the most visited child
-  const bestChild = root.children.reduce((a, b) => (a.visits > b.visits ? a : b));
-  if (verbose)
     console.log(`[BEST] ${bestChild.action.type} | Visits: ${bestChild.visits} | Average: ${bestChild.averageScore}`);
+  }
 
   return bestChild.action.clone(rootState);
 }
@@ -54,15 +54,11 @@ export function runMCTS(rootState, verbose, iterations = 1) {
 /**
  * Simulates a random play from the given simulator state until no actions are left.
  * @param {State} state the state to run the simulation from
- * @param {Number} depth the number of simulate action, 10 by default
  * @returns {Number} the score resulting from the play
  */
-function simulateRandomGame(state, depth = 10) {
-  for (let i = 0; i < depth; i++) {
-    state.defineActionsPossible();
-    if (state.isTerminal) break;
-
-    const action = state.chooseAction();
+function simulateRandomGame(state) {
+  while (!state.isTerminal) {
+    const action = getRandomElement(state.actionsPossible);
     action.apply();
   }
 

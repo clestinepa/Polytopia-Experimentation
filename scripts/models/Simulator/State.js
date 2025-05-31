@@ -2,6 +2,7 @@ import { Map } from "./Map.js";
 import { Action, EndTurn } from "./Action.js";
 import { MapGenerator } from "../Generator/MapGenerator.js";
 import { runMCTS } from "../MCTS/MCTSRunner.js";
+import { getRandomElement } from "../../utils.js";
 
 export class State {
   /** @type {Map} */
@@ -17,9 +18,11 @@ export class State {
   /** @type {Number} */
   turn;
   /** @type {Action[]} */
-  actionsPossible = [];
+  actionsPossible;
   /** @type {Action[]} */
-  actions = [];
+  actions;
+  /** @type {Number} */
+  indexActions;
 
   /**
    * @param {MapGenerator} map
@@ -68,39 +71,24 @@ export class State {
     this.populations = 0;
     this.stars = 5;
     this.stars_production = 2;
+    this.actionsPossible = [];
+    this.actions = [];
+    this.indexActions = -1;
   }
 
-  next(verbose = true) {
-    this.defineActionsPossible();
-    const bestAction = runMCTS(this, verbose);
-    // console.log("MCTS choose:", bestAction.type);
-    bestAction.apply();
+  next(verbose = false) {
+    if (this.indexActions === this.actions.length - 1) {
+      this.defineActionsPossible();
+      const bestAction = runMCTS(this, verbose);
+      this.actions.push(bestAction);
+      console.log("MCTS choose:", bestAction.type);
+    }
+    this.indexActions++;
+    this.actions[this.indexActions].apply();
   }
 
   prev() {
-    const lastAction = this.actions[this.actions.length - 1];
-    // console.log("Undo:", lastAction.type);
-    lastAction.undo();
-  }
-
-  chooseAction() {
-    this.defineActionsPossible();
-    let bestScore = -Infinity;
-    let bestAction = null;
-
-    for (const action of this.actionsPossible) {
-      const clone = this.clone();
-      const testAction = action.clone(clone);
-      testAction.apply();
-      const score = clone.evaluateState();
-      console.log(score);
-      if (score > bestScore) {
-        bestScore = score;
-        bestAction = action;
-      }
-    }
-    console.log(bestAction);
-    return bestAction;
+    this.actions[this.indexActions--].undo();
   }
 
   clone() {
@@ -120,8 +108,7 @@ export class State {
     const nextGreedyAction = this.actionsPossible.reduce((a, b) =>
       Action.DATA[a.type].production >= Action.DATA[b.type].production ? a : b
     );
-    console.log(this.actionsPossible, nextGreedyAction, Action.DATA[nextGreedyAction.type].production)
-    return this.populations + nextGreedyAction.production;
+    return this.populations + Action.DATA[nextGreedyAction.type].production;
   }
 
   /**
