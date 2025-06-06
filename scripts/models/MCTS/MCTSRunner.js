@@ -43,9 +43,9 @@ export function runMCTS(rootState, verbose, iterations = 1000) {
     console.log(`[RESULT] All children:`);
     root.children.forEach((child) => {
       const a = child.action;
-      console.log(`- Action: ${a.type} | Visits: ${child.visits} | Average: ${child.averageScore}`);
+      console.log(`- Action: ${a.type} | Visits: ${child.visits}`);
     });
-    console.log(`[BEST] ${bestChild.action.type} | Visits: ${bestChild.visits} | Average: ${bestChild.averageScore}`);
+    console.log(`[BEST] ${bestChild.action.type} | Visits: ${bestChild.visits}`);
   }
 
   return bestChild.action.clone(rootState);
