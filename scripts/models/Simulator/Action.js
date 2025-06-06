@@ -162,17 +162,21 @@ export class Terraform extends Action {
     super.apply();
     this.prevResource = this.tile.resource;
     this.tile.resource = this.type === "burn forest" ? "crop" : null;
-    if (this.type === "grow forest") this.tile.biome = "forest";
-    else this.tile.biome = "field";
-    this.tile.terraform.push(this.type);
+    if (this.type === "grow forest") {
+      this.tile.biome = "forest";
+      this.tile.hasBeenGrown = true;
+    } else this.tile.biome = "field";
+    this.tile.hasBeenTerraform++;
   }
   undo() {
     super.undo();
     this.tile.resource = this.prevResource;
     this.prevResource = undefined;
-    if (this.type === "grow forest") this.tile.biome = "field";
-    else this.tile.biome = "forest";
-    this.tile.terraform.splice(this.tile.terraform.indexOf(this.type), 1);
+    if (this.type === "grow forest") {
+      this.tile.biome = "field";
+      this.tile.hasBeenGrown = false;
+    } else this.tile.biome = "forest";
+    this.tile.hasBeenTerraform--;
   }
 
   /**
