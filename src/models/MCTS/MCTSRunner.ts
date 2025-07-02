@@ -1,16 +1,15 @@
 import { getRandomElement } from "../../utils.js";
-import { Action } from "../Simulator/Action.js";
 import { State } from "../Simulator/State.js";
 import { MCTSNode } from "./MCTSNode.js";
 
 /**
  * Runs the Monte Carlo Tree Search algorithm starting from the root node.
- * @param {State} rootState the initial game state
- * @param {Boolean} verbose display log if true
- * @param {Number} iterations he number of MCTS iterations to perform, 100 by default
- * @returns {import("../Simulator/Action.js").ActionClass} the best action to take next node (highest average score)
+ * @param rootState the initial game state
+ * @param verbose display log if true
+ * @param iterations he number of MCTS iterations to perform, 100 by default
+ * @returns the best action to take next node (highest average score)
  */
-export function runMCTS(rootState, verbose, iterations = 1000) {
+export function runMCTS(rootState: State, verbose: boolean, iterations: number | undefined = 100) {
   const root = new MCTSNode(rootState.clone());
 
   for (let i = 0; i < iterations; i++) {
@@ -28,7 +27,7 @@ export function runMCTS(rootState, verbose, iterations = 1000) {
     const result = simulateRandomGame(expandedNode.state.clone());
 
     // 4. BACK PROPAGATION
-    let current = expandedNode;
+    let current: MCTSNode | null = expandedNode;
     while (current) {
       current.visits++;
       current.score += result;
@@ -37,13 +36,16 @@ export function runMCTS(rootState, verbose, iterations = 1000) {
   }
 
   const bestChild = root.children.reduce((a, b) => (a.visits > b.visits ? a : b));
+  if (!bestChild.action) return;
 
-  if (bestChild.action.type === "clear forest") verbose = true;
+  // if (bestChild.action.type === "clear forest") verbose = true;
+  // verbose = true;
   if (verbose) {
+    console.log("");
     console.log(`[RESULT] All children:`);
     root.children.forEach((child) => {
-      const a = child.action;
-      console.log(`- Action: ${a.type} | Visits: ${child.visits}`);
+      if (!child.action) return;
+      console.log(`- Action: ${child.action.type} | Visits: ${child.visits}`);
     });
     console.log(`[BEST] ${bestChild.action.type} | Visits: ${bestChild.visits}`);
   }
@@ -53,14 +55,17 @@ export function runMCTS(rootState, verbose, iterations = 1000) {
 
 /**
  * Simulates a random play from the given simulator state until no actions are left.
- * @param {State} state the state to run the simulation from
- * @returns {Number} the score resulting from the play
+ * @param state the state to run the simulation from
+ * @returns the score resulting from the play
  */
-function simulateRandomGame(state) {
+function simulateRandomGame(state: State) {
   while (!state.isTerminal) {
+    const actionGreedy = state.actionsPossible
+      .map((a) => ({ a, score: a.futureScore }))
+      .sort((a, b) => b.score - a.score)[0].a;
     const action = getRandomElement(state.actionsPossible);
     action.apply();
   }
 
-  return state.evaluateState();
+  return state.score;
 }

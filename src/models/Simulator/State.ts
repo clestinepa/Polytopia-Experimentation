@@ -1,44 +1,33 @@
 import { Map } from "./Map.js";
-import { Action, EndTurn } from "./Action.js";
+import { BuildExploitation, BuildTemple, EndTurn, Forage, Terraform, Action, ActionData } from "./Action.js";
 import { MapGenerator } from "../Generator/MapGenerator.js";
 import { runMCTS } from "../MCTS/MCTSRunner.js";
-import { getRandomElement } from "../../utils.js";
+import { TypeAction } from "../../types.js";
+import { TileSimulator } from "./TileSimulator.js";
 
 export class State {
-  /** @type {Map} */
-  map;
+  map: Map;
 
-  /** @type {Number} */
-  populations;
-  /** @type {Number} */
-  stars;
-  /** @type {Number} */
-  stars_production;
+  populations: number = 0;
+  stars: number = 5;
+  stars_production: number = 2;
 
-  /** @type {Number} */
-  turn;
-  /** @type {Action[]} */
-  actionsPossible;
-  /** @type {Action[]} */
-  actions;
-  /** @type {Number} */
-  indexActions;
+  turn: number = 0;
+  actionsPossible: Action[] = [];
+  actions: Action[] = [];
+  indexActions: number = -1;
 
-  /**
-   * @param {MapGenerator} map
-   * @param {Boolean} isDisplayMap
-   */
-  constructor(map, isDisplayMap = false) {
+  constructor(map: MapGenerator, isDisplayMap: boolean = false) {
     this.map = new Map(map, isDisplayMap);
   }
 
-  _addActionPossible(type, tile) {
+  _addActionPossible(type: TypeAction, tile: TileSimulator) {
     if (this.stars >= Action.DATA[type].cost) {
       const existingAction = this.actionsPossible.find((action) => action.type === type);
       if (existingAction) existingAction.addPossibleTile(tile);
       else {
-        const ActionClass = Action.DATA[type].class;
-        const action = new ActionClass(type, tile, this);
+        const ActionTypeClass = Action.DATA[type].class;
+        const action = new ActionTypeClass(this, tile, type);
         this.actionsPossible.push(action);
       }
     }
@@ -65,25 +54,18 @@ export class State {
     });
   }
 
-  start() {
-    this.turn = 0;
-    this.populations = 0;
-    this.stars = 5;
-    this.stars_production = 2;
-    this.actionsPossible = [];
-    this.actions = [];
-    this.indexActions = -1;
-  }
-
-  next(verbose = false) {
+  next(verbose = true) {
     if (this.indexActions === this.actions.length - 1) {
       this.defineActionsPossible();
       const bestAction = runMCTS(this, verbose);
+      if (!bestAction) return;
       this.actions.push(bestAction);
       console.log("MCTS choose:", bestAction.type);
+      // console.log(this.score, bestAction.futureScore);
     }
     this.indexActions++;
     this.actions[this.indexActions].apply();
+    // console.log(this.score);
   }
 
   prev() {
@@ -91,8 +73,7 @@ export class State {
   }
 
   clone() {
-    /** @type {State} */
-    const newSimulator = Object.create(State.prototype);
+    const newSimulator = Object.create(State.prototype) as State;
     newSimulator.populations = this.populations;
     newSimulator.stars = this.stars;
     newSimulator.stars_production = this.stars_production;
@@ -103,15 +84,14 @@ export class State {
     return newSimulator;
   }
 
-  evaluateState() {
-    const nextGreedyAction = this.actionsPossible.reduce((a, b) =>
-      Action.DATA[a.type].production >= Action.DATA[b.type].production ? a : b
-    );
-    return this.populations + Action.DATA[nextGreedyAction.type].production;
+  get score() {
+    const tilePotentials = this.map.tiles.map((tile) => tile.potentialMax);
+    const totalPotential = tilePotentials.reduce((a, b) => a + b, 0);
+    return this.populations + totalPotential;
   }
 
   /**
-   * @returns {Boolean} true if the game is in a terminal state
+   * @returns true if the game is in a terminal state
    */
   get isTerminal() {
     this.defineActionsPossible();

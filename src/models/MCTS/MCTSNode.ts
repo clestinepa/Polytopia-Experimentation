@@ -1,34 +1,29 @@
 import { getRandomElement } from "../../utils.js";
-import { Action } from "../Simulator/Action.js";
+import { ActionClass } from "../Simulator/Action.js";
 import { State } from "../Simulator/State.js";
 
 export class MCTSNode {
-  /** @type {State} */
-  state;
-  /** @type {MCTSNode | null} */
-  parent;
-  /** @type {Action | null} */
-  action;
-  /** @type {MCTSNode[]} */
-  children = [];
-  /** @type {Number} */
-  visits = 0;
-  /** @type {Number} */
-  score = 0;
+  state: State;
+  parent: MCTSNode | null;
+  action: ActionClass | null;
+  children: MCTSNode[] = [];
+
+  visits: number = 0;
+  score: number = 0;
 
   /**
-   * @param {State} state the current game state at this node
-   * @param {MCTSNode | null} parent the parent node in the search tree, null by default
-   * @param {Action | null} action the action that led to this node, null by default
+   * @param state the current game state at this node
+   * @param  parent the parent node in the search tree, null by default
+   * @param action the action that led to this node, null by default
    */
-  constructor(state, parent = null, action = null) {
+  constructor(state: State, parent: MCTSNode | null = null, action: ActionClass | null = null) {
     this.state = state;
     this.parent = parent;
     this.action = action;
   }
 
   /**
-   * @returns {Boolean} true if all possible actions have been expanded
+   * @returns true if all possible actions have been expanded
    */
   isFullyExpanded() {
     return this.children.length === this.state.actionsPossible.length;
@@ -36,17 +31,18 @@ export class MCTSNode {
 
   /**
    * Computes the Upper Confidence Bound for Trees (UCT) value for this node.
-   * @param {Number | undefined} explorationFactor controls exploration vs exploitation, Math.sqrt(2) by default
-   * @returns {Number} UCT score
+   * @param explorationFactor controls exploration vs exploitation, Math.sqrt(2) by default
+   * @returns UCT score
    */
-  getUCT(explorationFactor = Math.sqrt(2)) {
+  getUCT(explorationFactor: number | undefined = Math.sqrt(2)) {
     if (this.visits === 0) return Infinity;
+    if (!this.parent) return 0;
     return this.score / this.visits + explorationFactor * Math.sqrt(Math.log(this.parent.visits) / this.visits);
   }
 
   /**
    * Expands this node by creating a new child for one untried action.
-   * @returns {MCTSNode | null} the newly created child node, or null if fully expanded
+   * @returns the newly created child node, or null if fully expanded
    */
   expand() {
     this.state.defineActionsPossible();

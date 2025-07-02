@@ -1,23 +1,19 @@
-import { get_assets } from "./scripts/assets.js";
-import { State } from "./scripts/models/Simulator/State.js";
-import { MapGenerator } from "./scripts/models/Generator/MapGenerator.js";
-import { Display } from "./scripts/models/Display.js";
+import { get_assets } from "./assets.js";
+import { State } from "./models/Simulator/State.js";
+import { MapGenerator } from "./models/Generator/MapGenerator.js";
+import { Display } from "./models/Display.js";
 
-const prevButton = document.getElementById("prev");
-const nextButton = document.getElementById("next");
-const runButton = document.getElementById("run");
-const information = document.getElementById("information");
+const generateButton = document.getElementById("generate") as HTMLButtonElement;
+const prevButton = document.getElementById("prev") as HTMLButtonElement;
+const nextButton = document.getElementById("next") as HTMLButtonElement;
+const runButton = document.getElementById("run") as HTMLButtonElement;
+const information = document.getElementById("information") as HTMLElement;
 
-/** @type {MapGenerator | undefined} */
-let mapGeneration;
+let mapGeneration: MapGenerator | undefined;
+let display: Display | undefined;
+let state: State | undefined;
 
-/** @type {Display | undefined} */
-let display;
-
-/** @type {State | undefined} */
-let state;
-
-document.getElementById("generate").addEventListener("click", () => {
+generateButton.addEventListener("click", () => {
   mapGeneration = new MapGenerator();
   display = new Display(mapGeneration.size);
   state = undefined;
@@ -28,6 +24,8 @@ document.getElementById("generate").addEventListener("click", () => {
 });
 
 prevButton.addEventListener("click", () => {
+  if (!state || !display) return;
+
   state.prev();
   changeDisablePrev();
 
@@ -35,9 +33,10 @@ prevButton.addEventListener("click", () => {
 });
 
 nextButton.addEventListener("click", () => {
+  if (!mapGeneration || !display) return;
+
   if (!state) {
     state = new State(mapGeneration, true);
-    state.start();
     startButtons();
   } else {
     state.next();
@@ -48,9 +47,10 @@ nextButton.addEventListener("click", () => {
 });
 
 runButton.addEventListener("click", () => {
+  if (!mapGeneration || !display) return;
+
   if (!state) {
     state = new State(mapGeneration, true);
-    state.start();
   }
   while (!state.isTerminal && state.stars < 500) state.next();
   changeDisablePrev();
@@ -76,6 +76,6 @@ function startButtons() {
 }
 
 function changeDisablePrev() {
-  if (state.indexActions === -1) prevButton.disabled = true;
+  if (state && state.indexActions === -1) prevButton.disabled = true;
   else prevButton.disabled = false;
 }

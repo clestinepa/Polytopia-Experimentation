@@ -1,7 +1,7 @@
 import { Map } from "../Simulator/Map.js";
 
 export class ProbsGeneration {
-  static #modifiers = {
+  private static _modifiers: { [key in string]: Partial<Record<"mountain" | "forest" | "fruit" | "crop", number>> } = {
     "Ai-mo": {
       mountain: 1.5,
       crop: 0.1,
@@ -40,10 +40,11 @@ export class ProbsGeneration {
   };
 
   constructor() {
-    const mods = ProbsGeneration.#modifiers[Map.tribe] || {};
+    const mods = ProbsGeneration._modifiers[Map.tribe] || {};
+    const probField: ("inner" | "outer")[] = ["inner", "outer"];
 
     // 1. Apply mountain modifier and adjust others proportionally
-    if (mods.mountain) {
+    if (mods["mountain"]) {
       this.mountain.prob = this.mountain.prob * mods.mountain;
       const remaining = 1 - this.mountain.prob;
       const nonMountainSum = this.forest.prob + this.field.prob;
@@ -52,30 +53,30 @@ export class ProbsGeneration {
     }
 
     // 2. Apply forest modifier and adjust field only
-    if (mods.forest) {
+    if (mods["forest"]) {
       this.forest.prob = this.forest.prob * mods.forest;
       const remaining = 1 - this.mountain.prob - this.forest.prob;
       this.field.prob = remaining;
     }
 
     // 1. Apply fruit modifier and adjust others proportionally
-    if (mods.fruit) {
-      ["inner", "outer"].forEach((localization) => {
+    probField.forEach((localization) => {
+      if (mods["fruit"]) {
         this.field[localization].fruit = this.field[localization].fruit * mods.fruit;
         const remaining = 1 - this.field[localization].fruit;
-        const nonFruitSum = this.field[localization].crop + base.field[localization].none;
+        const nonFruitSum = this.field[localization].crop + this.field[localization].none;
         this.field[localization].crop = (this.field[localization].crop / nonFruitSum) * remaining;
         this.field[localization].none = (this.field[localization].none / nonFruitSum) * remaining;
-      });
-    }
+      }
+    });
 
     // 2. Apply forest modifier and adjust none only
-    if (mods.crop) {
-      ["inner", "outer"].forEach((localization) => {
+    probField.forEach((localization) => {
+      if (mods["crop"]) {
         this.field[localization].crop = this.field[localization].crop * mods.crop;
         const remaining = 1 - this.field[localization].fruit - this.field[localization].crop;
         this.field[localization].none = remaining;
-      });
-    }
+      }
+    });
   }
 }

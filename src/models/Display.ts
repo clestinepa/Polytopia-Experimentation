@@ -1,15 +1,18 @@
-import { assets } from "../assets.js";
+import { AssetKeyBorder, assets } from "../assets.js";
+import { Biome, Building, Resource, Size } from "../types.js";
 import { MapGenerator } from "./Generator/MapGenerator.js";
 import { City } from "./Simulator/City.js";
 import { Map } from "./Simulator/Map.js";
 import { State } from "./Simulator/State.js";
+import { TileSimulator } from "./Simulator/TileSimulator.js";
+import { Tile } from "./Tile.js";
 
 export class Display {
-  static default_asset = "field"; //name of the asset used to calculate height and width
+  static default_asset: "field" = "field"; //name of the asset used to calculate height and width
   static ratio_ground = 0.63; //(in %) % of the ground coverage from the top of the default_asset
   static canvas_margin = 64; //(in px) margin of the canvas
 
-  static offsetY = {
+  static offsetY: Partial<Record<Biome | Resource | Building, number>> = {
     //biome
     forest: 0.1,
     mountain: 0.25,
@@ -21,31 +24,22 @@ export class Display {
     "forest temple": 0.1,
   };
 
-  /** @type {HTMLCanvasElement} */
-  canvas_html;
-  /** @type {CanvasRenderingContext2D} */
-  canvas;
+  canvas_html: HTMLCanvasElement;
+  canvas: CanvasRenderingContext2D;
 
-  /** @type {Size} */
-  map_size;
-  /** @type {Number} */
-  tile_height;
-  /** @type {Number} */
-  tile_width;
+  map_size: Size;
+  tile_height: number;
+  tile_width: number;
 
-  /**
-   * @param {Size} size
-   */
-  constructor(size) {
+  constructor(size: Size) {
     this.map_size = size;
 
-    this.canvas_html = document.getElementById("canvas_html");
+    this.canvas_html = document.getElementById("canvas_html") as HTMLCanvasElement;
     this.canvas_html.width = window.innerWidth;
     this.canvas_html.height = window.innerHeight;
-    this.canvas = canvas_html.getContext("2d");
+    this.canvas = this.canvas_html.getContext("2d") as CanvasRenderingContext2D;
 
-    /** @type {HTMLImageElement} */
-    let default_image = assets[Display.default_asset];
+    let default_image: HTMLImageElement = assets[Display.default_asset] ?? new Image();
 
     const max_height = this.canvas_html.height - Display.canvas_margin * 2;
     const max_width = this.canvas_html.width - Display.canvas_margin * 2;
@@ -57,17 +51,17 @@ export class Display {
     }
   }
 
-  _get_x(tile) {
+  _get_x(tile: Tile) {
     let posX = tile.col - tile.row;
     let deltaX = (posX * this.tile_width) / 2;
     return this.canvas_html.width / 2 - this.tile_width / 2 + deltaX;
   }
-  _get_y(tile) {
+  _get_y(tile: Tile) {
     let posY = tile.col + tile.row - (this.map_size - 1);
     let deltaY = (posY * (this.tile_height * Display.ratio_ground)) / 2;
     return this.canvas_html.height / 2 - this.tile_height / 2 + deltaY;
   }
-  _draw(tile, image, offsetY = 0) {
+  _draw(tile: Tile, image: HTMLImageElement, offsetY = 0) {
     this.canvas.drawImage(
       image,
       this._get_x(tile),
@@ -77,28 +71,26 @@ export class Display {
     );
   }
 
-  /**
-   * @param {MapGenerator | Map} map
-   */
-  _drawTiles(map) {
+  _drawTiles(map: MapGenerator | Map) {
     for (let tile of map.tiles) {
-      if (map.cities && !tile.known) this._draw(tile, assets["clouds"]); //clouds when start simulation
+      if (map instanceof Map && !tile.known)
+        this._draw(tile, assets["clouds"] ?? new Image()); //clouds when start simulation
       else {
-        this._draw(tile, assets["field"]);
-        if (tile.biome !== "field") this._draw(tile, assets[tile.biome], Display.offsetY[tile.biome]);
-        if (tile.resource && !tile.building) this._draw(tile, assets[tile.resource], Display.offsetY[tile.resource]);
-        if (tile.building) this._draw(tile, assets[tile.building], Display.offsetY[tile.building]);
+        this._draw(tile, assets["field"] ?? new Image());
+        if (tile.biome !== "field") this._draw(tile, assets[tile.biome] ?? new Image(), Display.offsetY[tile.biome]);
+        if (tile instanceof TileSimulator && tile.building) {
+          this._draw(tile, assets[tile.building] ?? new Image(), Display.offsetY[tile.building]);
+        } else {
+          if (tile.resource) this._draw(tile, assets[tile.resource] ?? new Image(), Display.offsetY[tile.resource]);
+        }
       }
     }
   }
 
-  /**
-   * @param {City} cities
-   */
-  _drawBorderCities(cities) {
+  _drawBorderCities(cities: City[]) {
     cities.forEach((city) => {
       const tileSet = new Set(city.tiles.map((t) => `${t.row},${t.col}`));
-      const bordersTile = [
+      const bordersTile: { dr: -1 | 0 | 1; dc: -1 | 0 | 1; border: AssetKeyBorder }[] = [
         { dr: -1, dc: -1, border: "corner top" },
         { dr: +1, dc: +1, border: "corner bottom" },
         { dr: -1, dc: +1, border: "corner right" },
@@ -113,30 +105,24 @@ export class Display {
         for (let { dr, dc, border } of bordersTile) {
           const neighborKey = `${tile.row + dr},${tile.col + dc}`;
           if (!tileSet.has(neighborKey)) {
-            this._draw(tile, assets.borders[border]);
+            this._draw(tile, assets.borders ? assets.borders[border] ?? new Image() : new Image());
           }
         }
       }
     });
   }
 
-  /**
-   * @param {MapGenerator | Map} map
-   */
-  drawMap(map) {
-    this.canvas.clearRect(0, 0, canvas_html.width, canvas_html.height);
+  drawMap(map: MapGenerator | Map) {
+    this.canvas.clearRect(0, 0, this.canvas_html.width, this.canvas_html.height);
     this._drawTiles(map);
-    if (map.cities) this._drawBorderCities(map.cities);
+    if (map instanceof Map) this._drawBorderCities(map.cities);
   }
 
-  /**
-   * @param {State} state
-   */
-  drawState(state) {
+  drawState(state: State) {
     this.drawMap(state.map);
-    document.getElementById("turn").innerHTML = state.turn;
-    document.getElementById("populations").innerHTML = state.populations;
-    document.getElementById("stars").innerHTML = state.stars;
-    document.getElementById("stars_production").innerHTML = state.stars_production;
+    (document.getElementById("turn") as HTMLElement).innerHTML = state.turn.toString();
+    (document.getElementById("populations") as HTMLElement).innerHTML = state.populations.toString();
+    (document.getElementById("stars") as HTMLElement).innerHTML = state.stars.toString();
+    (document.getElementById("stars_production") as HTMLElement).innerHTML = state.stars_production.toString();
   }
 }

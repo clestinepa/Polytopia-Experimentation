@@ -2,88 +2,53 @@ import { State } from "./State.js";
 import { TileSimulator } from "./TileSimulator.js";
 
 export class City {
-  /** @type {Number | null} */
-  city_id;
-  /** @typedef {Number} */
-  level = 1;
-  /** @type {Number} */
-  populations = 0;
-  /** @type {Number} */
-  total_populations = 0;
-  /** @type {Number} */
-  stars_production;
+  city_id: number | null;
+  level: number = 1;
 
-  /** @type {TileSimulator[]} */
-  tiles;
+  populations: number = 0;
+  total_populations: number = 0;
+  stars_production: number;
 
-  /**
-   * @param {TileSimulator} tile
-   * @param {Number} id
-   */
-  constructor(tile, id) {
+  tiles: TileSimulator[];
+
+  constructor(tile: TileSimulator, id: number) {
     this.tiles = [tile];
     this.city_id = id;
     this.linkCityToTile(tile);
     this.stars_production = this.city_id === 0 ? 2 : 1;
   }
 
-  /**
-   * @param {TileSimulator} tile
-   */
-  linkCityToTile(tile) {
+  linkCityToTile(tile: TileSimulator) {
     tile.city = this;
     tile.city_id = this.city_id;
   }
 
-  /**
-   * @param {TileSimulator} tile
-   */
-  addTile(tile) {
+  addTile(tile: TileSimulator) {
     this.tiles.push(tile);
     this.linkCityToTile(tile);
   }
 
-  /**
-   * @param {State} state
-   * @param {Number} value
-   */
-  increasePopulations(state, value) {
+  increasePopulations(state: State, value: number) {
     this.populations += value;
     this.total_populations += value;
     state.populations += value;
   }
-  /**
-   * @param {State} state
-   * @param {Number} value
-   */
-  decreasePopulations(state, value) {
+  decreasePopulations(state: State, value: number) {
     this.populations -= value;
     this.total_populations -= value;
     state.populations -= value;
   }
 
-  /**
-   * @param {State} state
-   * @param {Number} value
-   */
-  increaseStarProduction(state, value = 1) {
+  increaseStarProduction(state: State, value: number = 1) {
     this.stars_production += value;
     state.stars_production += value;
   }
-  /**
-   * @param {State} state
-   * @param {Number} value
-   */
-  decreaseStarProduction(state, value = 1) {
+  decreaseStarProduction(state: State, value: number = 1) {
     this.stars_production -= value;
     state.stars_production -= value;
   }
 
-  /**
-   * @param {Number} value
-   * @param {State} state
-   */
-  addPopulations(value, state) {
+  addPopulations(state: State, value: number) {
     this.increasePopulations(state, value);
     if (this.populations >= this.level + 1) {
       this.level++;
@@ -96,11 +61,7 @@ export class City {
       if (state.map.isDisplayMap) console.log("City is levelling to level " + this.level);
     }
   }
-  /**
-   * @param {Number} value
-   * @param {State} state
-   */
-  removePopulations(value, state) {
+  removePopulations(state: State, value: number) {
     this.decreasePopulations(state, value);
     if (this.populations < 0) {
       this.level--;
@@ -116,8 +77,7 @@ export class City {
 
   /** Clone without tiles */
   clone() {
-    /** @type {City} */
-    const newCity = Object.create(City.prototype);
+    const newCity = Object.create(City.prototype) as City;
     newCity.city_id = this.city_id;
     newCity.level = this.level;
     newCity.populations = this.populations;

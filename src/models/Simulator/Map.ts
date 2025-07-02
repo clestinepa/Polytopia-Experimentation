@@ -1,25 +1,17 @@
-import "../../types.js";
+import { Size } from "../../types.js";
 import { MapGenerator } from "../Generator/MapGenerator.js";
 import { City } from "./City.js";
 import { TileSimulator } from "./TileSimulator.js";
 
 export class Map {
-  static tribe = "Ai-mo";
+  static tribe: "Ai-mo" = "Ai-mo";
 
-  /** @type {Boolean} */
-  isDisplayMap;
-  /** @type {Size} */
-  size;
-  /** @type {TileSimulator[]} */
-  tiles;
-  /** @type {City[]} */
-  cities = [];
+  isDisplayMap: boolean;
+  size: Size;
+  tiles: TileSimulator[];
+  cities: City[] = [];
 
-  /**
-   * @param {MapGenerator} map
-   * @param {Boolean} isDisplayMap
-   */
-  constructor(map, isDisplayMap = false) {
+  constructor(map: MapGenerator, isDisplayMap: boolean = false) {
     this.isDisplayMap = isDisplayMap;
     this.size = map.size;
     this.tiles = Array.from({ length: this.size ** 2 }, (_, i) => {
@@ -33,7 +25,9 @@ export class Map {
   }
 
   clone() {
-    const newMap = new Map(new MapGenerator(this.size));
+    const newMap = Object.create(Map.prototype) as Map;
+    newMap.size = this.size;
+    newMap.isDisplayMap = false;
     newMap.tiles = this.tiles.map((tile) => tile.clone());
     newMap.cities = this.cities.map((city) => city.clone());
     //link cities and tiles together
@@ -43,7 +37,7 @@ export class Map {
     return newMap;
   }
 
-  getTile(row, col) {
+  getTile(row: number, col: number) {
     return this.tiles[row * this.size + col];
   }
 }
