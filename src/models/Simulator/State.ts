@@ -1,5 +1,5 @@
 import { Map } from "./Map.js";
-import { BuildExploitation, BuildTemple, EndTurn, Forage, Terraform, Action, ActionData } from "./Action.js";
+import { EndTurn, Action } from "./Action.js";
 import { MapGenerator } from "../Generator/MapGenerator.js";
 import { runMCTS } from "../MCTS/MCTSRunner.js";
 import { TypeAction } from "../../types.js";
@@ -54,18 +54,16 @@ export class State {
     });
   }
 
-  next(verbose = true) {
+  next(verbose = false) {
     if (this.indexActions === this.actions.length - 1) {
       this.defineActionsPossible();
       const bestAction = runMCTS(this, verbose);
       if (!bestAction) return;
       this.actions.push(bestAction);
       console.log("MCTS choose:", bestAction.type);
-      // console.log(this.score, bestAction.futureScore);
     }
     this.indexActions++;
     this.actions[this.indexActions].apply();
-    // console.log(this.score);
   }
 
   prev() {

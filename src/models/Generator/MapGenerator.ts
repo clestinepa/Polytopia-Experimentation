@@ -76,7 +76,7 @@ export class MapGenerator {
     this._getBorderTilesIndex(this.tiles[index], 1).forEach((i) => {
       this.tiles[i].territory = "inner";
       this._potentialVillages[i] = false;
-      this.tiles[i].isCapitalCity = true;
+      this.tiles[i].setCapitalCity();
     });
   }
 

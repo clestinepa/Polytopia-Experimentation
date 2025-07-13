@@ -1,5 +1,6 @@
+import { TileGenerator } from "./models/Generator/TileGenerator.js";
 import { Map } from "./models/Simulator/Map.js";
-import { Tile } from "./models/Tile.js";
+import { TileSimulator } from "./models/Simulator/TileSimulator.js";
 
 export function randomInt(min: number, max: number) {
   let rand = min + Math.random() * (max - min);
@@ -18,7 +19,11 @@ export function getRandomElement<T>(array: T[], condition: (el: T) => boolean = 
   return array[getRandomIndex(array, condition)];
 }
 
-export function printMap(map: Map, className: (tile: Tile) => string, text: (tile: Tile) => string) {
+export function printMap(
+  map: Map,
+  className: (tile: TileGenerator | TileSimulator) => string,
+  text: (tile: TileGenerator | TileSimulator) => string
+) {
   let seen_grid = Array(map.size).fill("");
   map.tiles.forEach((tile) => (seen_grid[tile.row] += '<div class="' + className(tile) + '">' + text(tile) + "</div>"));
   let output = "";

@@ -21,10 +21,10 @@ export class TileGenerator extends Tile {
 
   set biome(value) {
     this._biome = ["capital", "lighthouse", "village"].includes(this._biome) ? this._biome : value;
-    if (this._biome === "capital") this.isCapitalCity = true;
+    if (this._biome === "capital") this.setCapitalCity();
   }
-  set isCapitalCity(value) {
-    this._isCapitalCity = value;
-    if (value) this.known = value;
+  setCapitalCity() {
+    this._isCapitalCity = true;
+    this.known = true;
   }
 }
