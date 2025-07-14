@@ -38,6 +38,6 @@ export class Map {
   }
 
   getTile(row: number, col: number) {
-    return this.tiles[row * this.size + col];
+    return this.tiles[col * this.size + row];
   }
 }
