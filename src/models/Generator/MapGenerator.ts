@@ -71,7 +71,7 @@ export class MapGenerator {
     this._getBorderTilesIndex(this.tiles[index], 2).forEach((i) => {
       this.tiles[i].territory = "outer";
       this._potentialVillages[i] = false;
-      this.tiles[i].known = true;
+      if (this.tiles[i].biome !== "lighthouse") this.tiles[i].known = true;
     });
     this._getBorderTilesIndex(this.tiles[index], 1).forEach((i) => {
       this.tiles[i].territory = "inner";
@@ -129,8 +129,8 @@ export class MapGenerator {
 
   generate() {
     console.time("Generation");
-    this._generateCapital();
     this._generateLighthouse();
+    this._generateCapital();
     this._generateBiome();
     this._generateVillage();
     this._generateResources();
