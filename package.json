@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "tsx --test src/**/*.test.ts",
+    "test:name": "tsx --test",
     "build": "tsc",
     "watch": "tsc --watch"
   },
@@ -21,7 +22,11 @@
   "homepage": "https://github.com/clestinepa/Polytopia-Experimentation#readme",
   "description": "",
   "devDependencies": {
+    "@types/jsdom": "^21.1.7",
+    "jsdom": "^26.1.0",
     "serve": "^14.2.4",
-    "typescript": "^5.8.3"
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "uvu": "^0.5.6"
   }
 }
