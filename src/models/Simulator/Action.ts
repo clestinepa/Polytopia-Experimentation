@@ -38,12 +38,10 @@ export class Action {
   }
 
   apply() {
-    if (!this.tile) {
-      this.tile = getRandomElement(this.tilesPossible);
-      if (this.tile.city) {
-        this.state.stars -= Action.DATA[this.type].cost;
-        return this.tile.city.addPopulations(this.state, Action.DATA[this.type].production);
-      }
+    if (!this.tile) this.tile = getRandomElement(this.tilesPossible);
+    if (this.tile.city) {
+      this.state.stars -= Action.DATA[this.type].cost;
+      return this.tile.city.addPopulations(this.state, Action.DATA[this.type].production);
     }
     return false;
   }
