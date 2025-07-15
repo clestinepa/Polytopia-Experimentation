@@ -104,7 +104,9 @@ export class BuildTemple extends Build {
   }
 
   apply() {
-    return super.apply();
+    const cityLevelling = super.apply();
+    this.state.points += State.points_value.temple;
+    return cityLevelling;
   }
 
   undo() {

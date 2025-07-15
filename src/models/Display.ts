@@ -17,6 +17,7 @@ export class Display {
     populations: document.getElementById("populations") as HTMLElement,
     stars: document.getElementById("stars") as HTMLElement,
     stars_production: document.getElementById("stars_production") as HTMLElement,
+    points: document.getElementById("points") as HTMLElement,
     historic: document.getElementById("historic-display") as HTMLElement,
   };
 
@@ -131,6 +132,7 @@ export class Display {
     Display.elements.populations.innerHTML = state.populations.toString();
     Display.elements.stars.innerHTML = state.stars.toString();
     Display.elements.stars_production.innerHTML = state.stars_production.toString();
+    Display.elements.points.innerHTML = state.points.toString();
   }
 
   drawHistoric(state: State, scrollHistoric: number) {

@@ -7,11 +7,21 @@ import { TileSimulator } from "./TileSimulator.js";
 import { Historic } from "./Historic.js";
 
 export class State {
+  static points_value = {
+    known: 5,
+    city: 100,
+    city_territory: 20,
+    population: 5,
+    levelUp: (level: number) => 50 - level * 5,
+    temple: 100,
+  };
+
   map: Map;
 
   populations: number = 0;
   stars: number = 5;
   stars_production: number = 2;
+  points: number;
 
   turn: number = 0;
   actionsPossible: ActionClass[] = [];
@@ -19,6 +29,10 @@ export class State {
 
   constructor(map: MapGenerator, isDisplayMap: boolean = false) {
     this.map = new Map(map, isDisplayMap);
+    this.points =
+      this.map.tiles.filter((tile) => tile.known).length * State.points_value.known +
+      this.map.tiles.filter((tile) => tile.city_id !== null).length * State.points_value.city_territory +
+      State.points_value.city;
   }
 
   _addActionPossible(type: TypeAction, tile: TileSimulator) {

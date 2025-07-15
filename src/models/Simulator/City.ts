@@ -28,49 +28,43 @@ export class City {
     this.linkCityToTile(tile);
   }
 
-  increasePopulations(state: State, value: number) {
+  incrementPopulations(state: State, value: number) {
     this.populations += value;
     this.total_populations += value;
     state.populations += value;
-  }
-  decreasePopulations(state: State, value: number) {
-    this.populations -= value;
-    this.total_populations -= value;
-    state.populations -= value;
+    state.points += value * State.points_value.population;
   }
 
-  increaseStarProduction(state: State, value: number = 1) {
+  incrementStarProduction(state: State, value: number) {
     this.stars_production += value;
     state.stars_production += value;
   }
-  decreaseStarProduction(state: State, value: number = 1) {
-    this.stars_production -= value;
-    state.stars_production -= value;
-  }
 
   addPopulations(state: State, value: number) {
-    this.increasePopulations(state, value);
+    this.incrementPopulations(state, value);
     if (this.populations >= this.level + 1) {
       this.level++;
-      this.increaseStarProduction(state);
-      if (this.level === 2) this.increaseStarProduction(state);
+      state.points += State.points_value.levelUp(this.level);
+      this.incrementStarProduction(state, 1);
+      if (this.level === 2) this.incrementStarProduction(state, 1);
       else if (this.level === 3) state.stars += 5;
-      else if (this.level === 4) this.increasePopulations(state, 3);
-      else if (this.level >= 5) this.increaseStarProduction(state);
+      else if (this.level === 4) this.incrementPopulations(state, 3);
+      else if (this.level >= 5) this.incrementStarProduction(state, 1);
       this.populations -= this.level;
       return true;
     }
     return false;
   }
   removePopulations(state: State, value: number) {
-    this.decreasePopulations(state, value);
+    this.incrementPopulations(state, value * -1);
     if (this.populations < 0) {
+      state.points -= State.points_value.levelUp(this.level);
       this.level--;
-      this.decreaseStarProduction(state);
-      if (this.level === 1) this.decreaseStarProduction(state);
+      this.incrementStarProduction(state, -1);
+      if (this.level === 1) this.incrementStarProduction(state, -1);
       else if (this.level === 2) state.stars -= 5;
-      else if (this.level === 3) this.decreasePopulations(state, 3);
-      else if (this.level >= 4) this.decreaseStarProduction(state);
+      else if (this.level === 3) this.incrementPopulations(state, -3);
+      else if (this.level >= 4) this.incrementStarProduction(state, -1);
       this.populations += this.level + 1;
     }
   }
