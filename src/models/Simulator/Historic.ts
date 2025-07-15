@@ -3,6 +3,14 @@ import { City } from "./City";
 import { State } from "./State";
 import { TileSimulator } from "./TileSimulator";
 
+type ActionHistoric = {
+  action: ActionClass;
+  msg?: {
+    primary: string;
+    secondary?: string;
+  };
+};
+
 export class Historic {
   static messages = {
     start: "🎉 Beginning of the game",
@@ -18,7 +26,7 @@ export class Historic {
     "clear forest": "🪓 Clear forest",
     "burn forest": "🔥 Burn forest",
     "grow forest": "🌳 Grow forest",
-    city_level: (city: City | null | undefined) => {
+    city_level: (city: City) => {
       let reward = "Park";
       if (city?.level == 2) reward = "Workshop";
       if (city?.level == 3) reward = "Resources";
@@ -28,30 +36,33 @@ export class Historic {
     on: (tile: TileSimulator) => ` on (${tile.row}, ${tile.col})`,
   };
 
-  messages: { action: string; city_levelling: string | undefined }[] = [];
-  actions: ActionClass[] = [];
+  actions: ActionHistoric[] = [];
   index: number = -1;
 
   constructor() {}
 
   newAction(action: ActionClass) {
-    let msg = Historic.messages[action.type];
-    if (action.type !== "end turn" && action.tile) msg += Historic.messages.on(action.tile);
-    this.messages.push({
-      action: msg,
-      city_levelling: undefined,
-    });
-    this.actions.push(action);
+    this.actions.push({ action });
+  }
+
+  createMsg(action: ActionHistoric, cityLevelling: Boolean) {
+    if (!action.msg) {
+      let primary = Historic.messages[action.action.type];
+      if (action.action.type !== "end turn" && action.action.tile) primary += Historic.messages.on(action.action.tile);
+      action.msg = { primary };
+      if (cityLevelling && action.action.tile && action.action.tile.city)
+        action.msg.secondary = Historic.messages.city_level(action.action.tile.city);
+    }
   }
 
   apply() {
     this.index++;
-    const cityLevelling = this.actions[this.index].apply();
-    if (cityLevelling && !this.messages[this.index].city_levelling)
-      this.messages[this.index].city_levelling = Historic.messages.city_level(this.actions[this.index].tile?.city);
+    console.log(this.actions[this.index].action);
+    const cityLevelling = this.actions[this.index].action.apply();
+    this.createMsg(this.actions[this.index], cityLevelling);
   }
   undo() {
-    this.actions[this.index].undo();
+    this.actions[this.index].action.undo();
     this.index--;
   }
 
@@ -61,8 +72,9 @@ export class Historic {
 
   clone(state: State) {
     const newHistoric = Object.create(Historic.prototype) as Historic;
-    newHistoric.messages = this.messages.slice();
-    newHistoric.actions = this.actions.map((action) => action.clone(state));
+    newHistoric.actions = this.actions.map((action) => {
+      return { action: action.action.clone(state), msg: action.msg };
+    });
     newHistoric.index = this.index;
     return newHistoric;
   }

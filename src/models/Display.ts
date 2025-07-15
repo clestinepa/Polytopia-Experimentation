@@ -126,22 +126,30 @@ export class Display {
     if (map instanceof Map) this._drawBorderCities(map.cities);
   }
 
-  drawState(state: State) {
-    this.drawMap(state.map);
+  drawInfo(state: State) {
     Display.elements.turn.innerHTML = state.turn.toString();
     Display.elements.populations.innerHTML = state.populations.toString();
     Display.elements.stars.innerHTML = state.stars.toString();
     Display.elements.stars_production.innerHTML = state.stars_production.toString();
+  }
+
+  drawHistoric(state: State) {
     Display.elements.historic.innerHTML = "";
-    state.historic.messages.forEach((msg, i) => {
+    state.historic.actions.forEach((a, i) => {
       Display.elements.historic.innerHTML +=
         `<div class="action` +
         (state.historic.index === i ? " active" : "") +
-        `"><p>${msg.action}</p>` +
-        (msg.city_levelling ? `<p>${msg.city_levelling}</p></div>` : "</div>");
+        `"><p>${a.msg?.primary}</p>` +
+        (a.msg?.secondary ? `<p>${a.msg?.secondary}</p></div>` : "</div>");
     });
     const search = Display.elements.historic.getElementsByClassName("active");
     const active = search.length === 0 ? undefined : (search[0] as HTMLElement);
     if (active) Display.elements.historic.scrollTo(0, active.offsetTop - Display.elements.historic.offsetTop);
+  }
+
+  drawState(state: State) {
+    this.drawMap(state.map);
+    this.drawInfo(state);
+    this.drawHistoric(state);
   }
 }
