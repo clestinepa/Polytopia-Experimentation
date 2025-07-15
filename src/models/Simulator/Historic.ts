@@ -13,7 +13,6 @@ type ActionHistoric = {
 
 export class Historic {
   static messages = {
-    start: "🎉 Beginning of the game",
     "end turn": "✨ End turn",
     "forest temple": "🛕🌳 Build a forest temple",
     "mountain temple": "🛕🗻 Build a mountain temple",

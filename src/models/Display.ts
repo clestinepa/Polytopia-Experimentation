@@ -17,7 +17,7 @@ export class Display {
     populations: document.getElementById("populations") as HTMLElement,
     stars: document.getElementById("stars") as HTMLElement,
     stars_production: document.getElementById("stars_production") as HTMLElement,
-    historic: document.getElementById("historic") as HTMLElement,
+    historic: document.getElementById("historic-display") as HTMLElement,
   };
 
   static offsetY: Partial<Record<Biome | Resource | Building, number>> = {

@@ -61,17 +61,10 @@ runButton.addEventListener("click", () => {
 document.addEventListener("DOMContentLoaded", get_assets);
 
 function generateButtons() {
-  prevButton.style.display = "none";
   prevButton.disabled = true;
-  nextButton.innerHTML = "Start";
-  nextButton.style.display = "block";
-  runButton.style.display = "none";
   info.style.visibility = "hidden";
 }
 function startButtons() {
-  prevButton.style.display = "block";
-  nextButton.innerHTML = "Next";
-  runButton.style.display = "block";
   info.style.visibility = "visible";
 }
 
