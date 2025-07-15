@@ -58,8 +58,9 @@ export class City {
       else if (this.level === 4) this.increasePopulations(state, 3);
       else if (this.level >= 5) this.increaseStarProduction(state);
       this.populations -= this.level;
-      if (state.map.isDisplayMap) console.log("City is levelling to level " + this.level);
+      return true;
     }
+    return false;
   }
   removePopulations(state: State, value: number) {
     this.decreasePopulations(state, value);
@@ -71,7 +72,6 @@ export class City {
       else if (this.level === 3) this.decreasePopulations(state, 3);
       else if (this.level >= 4) this.decreaseStarProduction(state);
       this.populations += this.level + 1;
-      if (state.map.isDisplayMap) console.log("City is downgrading to level " + this.level);
     }
   }
 

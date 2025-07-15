@@ -42,17 +42,16 @@ export class Action {
       this.tile = getRandomElement(this.tilesPossible);
       if (this.tile.city) {
         this.state.stars -= Action.DATA[this.type].cost;
-        this.tile.city.addPopulations(this.state, Action.DATA[this.type].production);
-        if (this.state.map.isDisplayMap) console.log(`Apply ${this.type} on (${this.tile.row}, ${this.tile.col})`);
+        return this.tile.city.addPopulations(this.state, Action.DATA[this.type].production);
       }
     }
+    return false;
   }
 
   undo() {
     if (this.tile && this.tile.city) {
       this.state.stars += Action.DATA[this.type].cost;
       this.tile.city.removePopulations(this.state, Action.DATA[this.type].production);
-      if (this.state.map.isDisplayMap) console.log(`Undo ${this.type} on (${this.tile.row}, ${this.tile.col})`);
     }
   }
 
@@ -86,10 +85,11 @@ export class Build extends Action {
   }
 
   apply() {
-    super.apply();
+    const cityLevelling = super.apply();
     if (this.tile) {
       this.tile.building = this.type as Building;
     }
+    return cityLevelling;
   }
 
   undo() {
@@ -106,7 +106,7 @@ export class BuildTemple extends Build {
   }
 
   apply() {
-    super.apply();
+    return super.apply();
   }
 
   undo() {
@@ -120,7 +120,7 @@ export class BuildExploitation extends Build {
   }
 
   apply() {
-    super.apply();
+    return super.apply();
     //increase level of neighbors SpecialBuilding
   }
   undo() {
@@ -136,11 +136,12 @@ export class Forage extends Action {
   }
 
   apply() {
-    super.apply();
+    const cityLevelling = super.apply();
     if (this.tile) {
       this.prevResource = this.tile.resource;
       this.tile.resource = null;
     }
+    return cityLevelling;
   }
   undo() {
     super.undo();
@@ -165,7 +166,7 @@ export class Terraform extends Action {
   }
 
   apply() {
-    super.apply();
+    const cityLevelling = super.apply();
     if (this.tile) {
       this.prevResource = this.tile.resource;
       this.tile.resource = this.type === "burn forest" ? "crop" : null;
@@ -175,6 +176,7 @@ export class Terraform extends Action {
       } else this.tile.biome = "field";
       this.tile.hasBeenTerraform++;
     }
+    return cityLevelling;
   }
   undo() {
     super.undo();
@@ -204,12 +206,11 @@ export class EndTurn extends Action {
   apply() {
     this.state.turn++;
     this.state.stars += this.state.stars_production;
-    if (this.state.map.isDisplayMap) console.log(`Apply end turn : ${this.state.turn - 1} to ${this.state.turn}`);
+    return false;
   }
   undo() {
     this.state.turn--;
     this.state.stars -= this.state.stars_production;
-    if (this.state.map.isDisplayMap) console.log(`Undo end turn : ${this.state.turn} to ${this.state.turn - 1}`);
   }
 
   clone(state: State) {

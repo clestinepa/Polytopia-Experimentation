@@ -12,6 +12,14 @@ export class Display {
   static ratio_ground = 0.63; //(in %) % of the ground coverage from the top of the default_asset
   static canvas_margin = 64; //(in px) margin of the canvas
 
+  static elements = {
+    turn: document.getElementById("turn") as HTMLElement,
+    populations: document.getElementById("populations") as HTMLElement,
+    stars: document.getElementById("stars") as HTMLElement,
+    stars_production: document.getElementById("stars_production") as HTMLElement,
+    historic: document.getElementById("historic") as HTMLElement,
+  };
+
   static offsetY: Partial<Record<Biome | Resource | Building, number>> = {
     //biome
     forest: 0.1,
@@ -120,9 +128,20 @@ export class Display {
 
   drawState(state: State) {
     this.drawMap(state.map);
-    (document.getElementById("turn") as HTMLElement).innerHTML = state.turn.toString();
-    (document.getElementById("populations") as HTMLElement).innerHTML = state.populations.toString();
-    (document.getElementById("stars") as HTMLElement).innerHTML = state.stars.toString();
-    (document.getElementById("stars_production") as HTMLElement).innerHTML = state.stars_production.toString();
+    Display.elements.turn.innerHTML = state.turn.toString();
+    Display.elements.populations.innerHTML = state.populations.toString();
+    Display.elements.stars.innerHTML = state.stars.toString();
+    Display.elements.stars_production.innerHTML = state.stars_production.toString();
+    Display.elements.historic.innerHTML = "";
+    state.historic.messages.forEach((msg, i) => {
+      Display.elements.historic.innerHTML +=
+        `<div class="action` +
+        (state.historic.index === i ? " active" : "") +
+        `"><p>${msg.action}</p>` +
+        (msg.city_levelling ? `<p>${msg.city_levelling}</p></div>` : "</div>");
+    });
+    const search = Display.elements.historic.getElementsByClassName("active");
+    const active = search.length === 0 ? undefined : (search[0] as HTMLElement);
+    if (active) Display.elements.historic.scrollTo(0, active.offsetTop - Display.elements.historic.offsetTop);
   }
 }

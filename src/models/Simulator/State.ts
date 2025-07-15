@@ -1,9 +1,10 @@
 import { Map } from "./Map.js";
-import { EndTurn, Action } from "./Action.js";
+import { EndTurn, Action, ActionClass } from "./Action.js";
 import { MapGenerator } from "../Generator/MapGenerator.js";
 import { runMCTS } from "../MCTS/MCTSRunner.js";
 import { TypeAction } from "../../types.js";
 import { TileSimulator } from "./TileSimulator.js";
+import { Historic } from "./Historic.js";
 
 export class State {
   map: Map;
@@ -13,9 +14,8 @@ export class State {
   stars_production: number = 2;
 
   turn: number = 0;
-  actionsPossible: Action[] = [];
-  actions: Action[] = [];
-  indexActions: number = -1;
+  actionsPossible: ActionClass[] = [];
+  historic: Historic = new Historic();
 
   constructor(map: MapGenerator, isDisplayMap: boolean = false) {
     this.map = new Map(map, isDisplayMap);
@@ -55,19 +55,17 @@ export class State {
   }
 
   next(verbose = false) {
-    if (this.indexActions === this.actions.length - 1) {
+    if (this.historic.isCurrentLast) {
       this.defineActionsPossible();
       const bestAction = runMCTS(this, verbose);
       if (!bestAction) return;
-      this.actions.push(bestAction);
-      console.log("MCTS choose:", bestAction.type);
+      this.historic.newAction(bestAction);
     }
-    this.indexActions++;
-    this.actions[this.indexActions].apply();
+    this.historic.apply();
   }
 
   prev() {
-    this.actions[this.indexActions--].undo();
+    this.historic.undo();
   }
 
   clone() {
@@ -77,8 +75,8 @@ export class State {
     newSimulator.stars_production = this.stars_production;
     newSimulator.map = this.map.clone();
     newSimulator.turn = this.turn;
-    newSimulator.actionsPossible = this.actionsPossible.slice();
-    newSimulator.actions = this.actions.slice();
+    newSimulator.actionsPossible = this.actionsPossible.map((action) => action.clone(newSimulator));
+    newSimulator.historic = this.historic.clone(newSimulator);
     return newSimulator;
   }
 

@@ -8,34 +8,75 @@
   </head>
 
   <body>
-    <div class="overlay" id="settings">
-      <button id="generate">Generate</button>
+    <main>
+      <div id="settings">
+        <button id="generate">Generate</button>
 
-      <div class="radio_group">
-        <h4>Map size:</h4>
-        <input type="radio" id="tiny" name="map_size" value="11" checked /><label for="tiny">Tiny</label><br />
-        <input type="radio" id="small" name="map_size" value="14" /><label for="small">Small</label><br />
-        <input type="radio" id="normal" name="map_size" value="16" /><label for="normal">Normal</label><br />
-        <input type="radio" id="large" name="map_size" value="18" /><label for="large">Large</label><br />
-        <input type="radio" id="huge" name="map_size" value="20" /><label for="huge">Huge</label><br />
-        <input type="radio" id="massive" name="map_size" value="30" /><label for="massive">Massive</label>
+        <div class="radio_group">
+          <h4>Map size:</h4>
+          <input type="radio" id="tiny" name="map_size" value="11" checked /><label for="tiny">Tiny</label><br />
+          <input type="radio" id="small" name="map_size" value="14" /><label for="small">Small</label><br />
+          <input type="radio" id="normal" name="map_size" value="16" /><label for="normal">Normal</label><br />
+          <input type="radio" id="large" name="map_size" value="18" /><label for="large">Large</label><br />
+          <input type="radio" id="huge" name="map_size" value="20" /><label for="huge">Huge</label><br />
+          <input type="radio" id="massive" name="map_size" value="30" /><label for="massive">Massive</label>
+        </div>
       </div>
-    </div>
-    <div id="information" style="display: none">
-      <h3>Turn: <span id="turn"></span></h3>
-      <h4>Population: <span id="populations"></span></h4>
-      <h4>Stars (+<span id="stars_production"></span>): <span id="stars"></span></h4>
-    </div>
-    <div id="text_display" style="display: none">None</div>
+
+      <div id="info-game" style="visibility: hidden">
+        <div id="information" class="info-game-elements">
+          <h3>Turn: <span id="turn"></span></h3>
+          <h4>Population: <span id="populations"></span></h4>
+          <h4>Stars (+<span id="stars_production"></span>): <span id="stars"></span></h4>
+          <!-- <h4>Points: <span id="points"></span></h4> -->
+        </div>
+        <div class="info-game-elements">
+          <h3>Historic:</h3>
+          <div id="historic">
+            <!-- <div class="action">
+              <p>🎉 Beginning of the game</p>
+            </div>
+            <div class="action">
+              <p>✨ End turn</p>
+            </div>
+            <div class="action">
+              <p>✨ End turn</p>
+            </div>
+            <div class="action">
+              <p>✨ End turn</p>
+              <p></p>
+            </div>
+             <div class="action">
+              <p>✨ End turn</p>
+            </div>
+            <div class="action">
+              <p>✨ End turn</p>
+            </div>
+            <div class="action">
+              <p>✨ End turn</p>
+            </div>
+            <div class="action">
+              <p>✨ End turn</p>
+            </div> 
+            <div class="action active">
+              <p>🔥 Burn forest on (1,7)</p>
+              <p>🏘️ City 0 level 2 with Workshop</p>
+            </div> -->
+          </div>
+        </div>
+      </div>
+
+      <div id="text_display" style="display: none">None</div>
+
+      <div id="buttons">
+        <button id="prev" style="display: none">Prev</button>
+        <button id="next" style="display: none">Start</button>
+        <button id="run" style="display: none">Run</button>
+      </div>
+    </main>
 
     <div id="map-wrapper">
       <canvas id="canvas_html"></canvas>
-    </div>
-
-    <div class="overlay" id="buttons">
-      <button id="prev" style="display: none">Prev</button>
-      <button id="next" style="display: none">Start</button>
-      <button id="run" style="display: none">Run</button>
     </div>
 
     <script type="module" src="dist/index.js"></script>

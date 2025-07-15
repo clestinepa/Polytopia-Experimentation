@@ -7,7 +7,7 @@ const generateButton = document.getElementById("generate") as HTMLButtonElement;
 const prevButton = document.getElementById("prev") as HTMLButtonElement;
 const nextButton = document.getElementById("next") as HTMLButtonElement;
 const runButton = document.getElementById("run") as HTMLButtonElement;
-const information = document.getElementById("information") as HTMLElement;
+const info = document.getElementById("info-game") as HTMLElement;
 
 let mapGeneration: MapGenerator | undefined;
 let display: Display | undefined;
@@ -66,16 +66,16 @@ function generateButtons() {
   nextButton.innerHTML = "Start";
   nextButton.style.display = "block";
   runButton.style.display = "none";
-  information.style.display = "none";
+  info.style.visibility = "hidden";
 }
 function startButtons() {
   prevButton.style.display = "block";
   nextButton.innerHTML = "Next";
   runButton.style.display = "block";
-  information.style.display = "block";
+  info.style.visibility = "visible";
 }
 
 function changeDisablePrev() {
-  if (state && state.indexActions === -1) prevButton.disabled = true;
+  if (state && state.historic.index === -1) prevButton.disabled = true;
   else prevButton.disabled = false;
 }
