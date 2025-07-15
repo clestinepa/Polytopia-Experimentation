@@ -133,7 +133,7 @@ export class Display {
     Display.elements.stars_production.innerHTML = state.stars_production.toString();
   }
 
-  drawHistoric(state: State) {
+  drawHistoric(state: State, scrollHistoric: number) {
     Display.elements.historic.innerHTML = "";
     state.historic.actions.forEach((a, i) => {
       Display.elements.historic.innerHTML +=
@@ -144,19 +144,21 @@ export class Display {
     });
     const search = Display.elements.historic.getElementsByClassName("active");
     const active = search.length === 0 ? undefined : (search[0] as HTMLElement);
-    if (active) Display.elements.historic.scrollTo(0, active.offsetTop - Display.elements.historic.offsetTop);
+    if (scrollHistoric === -1 && active)
+      Display.elements.historic.scrollTo(0, active.offsetTop - Display.elements.historic.offsetTop);
+    else Display.elements.historic.scrollTo(0, scrollHistoric);
 
     Array(...Display.elements.historic.children).forEach((a, i) => {
       a.addEventListener("click", () => {
         state.historic.goTo(i);
-        this.drawState(state);
+        this.drawState(state, Display.elements.historic.scrollTop);
       });
     });
   }
 
-  drawState(state: State) {
+  drawState(state: State, scrollHistoric = -1) {
     this.drawMap(state.map);
     this.drawInfo(state);
-    this.drawHistoric(state);
+    this.drawHistoric(state, scrollHistoric);
   }
 }
