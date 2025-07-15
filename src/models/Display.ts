@@ -145,6 +145,13 @@ export class Display {
     const search = Display.elements.historic.getElementsByClassName("active");
     const active = search.length === 0 ? undefined : (search[0] as HTMLElement);
     if (active) Display.elements.historic.scrollTo(0, active.offsetTop - Display.elements.historic.offsetTop);
+
+    Array(...Display.elements.historic.children).forEach((a, i) => {
+      a.addEventListener("click", () => {
+        state.historic.goTo(i);
+        this.drawState(state);
+      });
+    });
   }
 
   drawState(state: State) {

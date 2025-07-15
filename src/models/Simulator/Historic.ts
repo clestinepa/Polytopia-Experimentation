@@ -54,15 +54,21 @@ export class Historic {
     }
   }
 
-  apply() {
+  next() {
     this.index++;
-    console.log(this.actions[this.index].action);
     const cityLevelling = this.actions[this.index].action.apply();
     this.createMsg(this.actions[this.index], cityLevelling);
   }
-  undo() {
+  prev() {
     this.actions[this.index].action.undo();
     this.index--;
+  }
+
+  goTo(index: number) {
+    while (this.index !== index) {
+      if (index < this.index) this.prev();
+      else if (index > this.index) this.next();
+    }
   }
 
   get isCurrentLast() {

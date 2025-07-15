@@ -61,11 +61,11 @@ export class State {
       if (!bestAction) return;
       this.historic.newAction(bestAction);
     }
-    this.historic.apply();
+    this.historic.next();
   }
 
   prev() {
-    this.historic.undo();
+    this.historic.prev();
   }
 
   clone() {
