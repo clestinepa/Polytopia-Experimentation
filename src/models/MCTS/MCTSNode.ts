@@ -1,11 +1,11 @@
 import { getRandomElement } from "../../utils.js";
-import { ActionClass } from "../Simulator/Action.js";
+import { Action } from "../Simulator/Action.js";
 import { State } from "../Simulator/State.js";
 
 export class MCTSNode {
   state: State;
   parent: MCTSNode | null;
-  action: ActionClass | null;
+  action: Action | null;
   children: MCTSNode[] = [];
 
   visits: number = 0;
@@ -16,7 +16,7 @@ export class MCTSNode {
    * @param  parent the parent node in the search tree, null by default
    * @param action the action that led to this node, null by default
    */
-  constructor(state: State, parent: MCTSNode | null = null, action: ActionClass | null = null) {
+  constructor(state: State, parent: MCTSNode | null = null, action: Action | null = null) {
     this.state = state;
     this.parent = parent;
     this.action = action;

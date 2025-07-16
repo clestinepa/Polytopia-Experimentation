@@ -1,21 +1,21 @@
 import { Size } from "../../types.js";
 import { MapGenerator } from "../Generator/MapGenerator.js";
 import { City } from "./City.js";
-import { TileSimulator } from "./TileSimulator.js";
+import { Tile } from "./Tile.js";
 
 export class Map {
   static tribe: "Ai-mo" = "Ai-mo";
 
   isDisplayMap: boolean;
   size: Size;
-  tiles: TileSimulator[];
+  tiles: Tile[];
   cities: City[] = [];
 
   constructor(map: MapGenerator, isDisplayMap: boolean = false) {
     this.isDisplayMap = isDisplayMap;
     this.size = map.size;
     this.tiles = Array.from({ length: this.size ** 2 }, (_, i) => {
-      const tile = new TileSimulator(map.tiles[i]);
+      const tile = new Tile(map.tiles[i]);
       if (map.tiles[i].isCapitalCity) {
         if (this.cities.length === 0) this.cities.push(new City(tile, 0));
         else this.cities[0].addTile(tile);

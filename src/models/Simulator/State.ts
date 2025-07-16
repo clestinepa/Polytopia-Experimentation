@@ -1,9 +1,9 @@
 import { Map } from "./Map.js";
-import { EndTurn, Action, ActionClass } from "./Action.js";
+import { Action } from "./Action.js";
 import { MapGenerator } from "../Generator/MapGenerator.js";
 import { runMCTS } from "../MCTS/MCTSRunner.js";
 import { TypeAction } from "../../types.js";
-import { TileSimulator } from "./TileSimulator.js";
+import { Tile } from "./Tile.js";
 import { Historic } from "./Historic.js";
 
 export class State {
@@ -24,7 +24,7 @@ export class State {
   points: number;
 
   turn: number = 0;
-  actionsPossible: ActionClass[] = [];
+  actionsPossible: Action[] = [];
   historic: Historic = new Historic();
 
   constructor(map: MapGenerator, isDisplayMap: boolean = false) {
@@ -35,19 +35,15 @@ export class State {
       State.points_value.city;
   }
 
-  _addActionPossible(type: TypeAction, tile: TileSimulator) {
+  _addActionPossible(type: TypeAction, tile: Tile) {
     if (this.stars >= Action.DATA[type].cost) {
       const existingAction = this.actionsPossible.find((action) => action.type === type);
       if (existingAction) existingAction.addPossibleTile(tile);
-      else {
-        const ActionTypeClass = Action.DATA[type].class;
-        const action = new ActionTypeClass(this, tile, type);
-        this.actionsPossible.push(action);
-      }
+      else this.actionsPossible.push(new Action(this, tile, type));
     }
   }
   defineActionsPossible() {
-    this.actionsPossible = [new EndTurn(this)];
+    this.actionsPossible = [new Action(this, undefined, "end turn")];
     this.map.tiles.forEach((tile) => {
       if (!tile.city || tile.building) return;
       if (tile.biome === "mountain") {

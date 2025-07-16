@@ -1,7 +1,9 @@
 import { Biome, Resource, Territory } from "../../types.js";
-import { Tile } from "../Tile.js";
 
-export class TileGenerator extends Tile {
+export class TileGenerator {
+  row: number;
+  col: number;
+
   private _biome: Biome = "field";
   resource: Resource | null = null;
   territory: Territory = "none";
@@ -9,7 +11,8 @@ export class TileGenerator extends Tile {
   known: boolean = false;
 
   constructor(row: number, col: number) {
-    super(row, col);
+    this.row = row;
+    this.col = col;
   }
 
   get biome() {

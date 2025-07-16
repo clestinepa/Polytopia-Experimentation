@@ -1,36 +1,33 @@
-import { Building, Exploitation, Foraging, Resource, Temple, Terraforming, TypeAction } from "../../types.js";
+import { Building, Resource, TypeAction } from "../../types.js";
 import { getRandomElement } from "../../utils.js";
 import { State } from "./State.js";
-import { TileSimulator } from "./TileSimulator.js";
-
-export type ActionClass = BuildTemple | BuildExploitation | Forage | Terraform | EndTurn;
-export type ActionData = {
-  [key in TypeAction]: {
-    cost: number;
-    production: number;
-    class: key extends Temple
-      ? typeof BuildTemple
-      : key extends Terraforming
-      ? typeof Terraform
-      : key extends Exploitation
-      ? typeof BuildExploitation
-      : key extends Foraging
-      ? typeof Forage
-      : typeof EndTurn;
-  };
-};
+import { Tile } from "./Tile.js";
 
 export class Action {
-  static DATA: ActionData;
+  static DATA = {
+    "end turn": { cost: 0, production: 0 },
+    "forest temple": { cost: 15, production: 1 },
+    "mountain temple": { cost: 20, production: 1 },
+    temple: { cost: 20, production: 1 },
+    "lumber hut": { cost: 3, production: 1 },
+    farm: { cost: 5, production: 2 },
+    mine: { cost: 5, production: 2 },
+    hunting: { cost: 2, production: 1 },
+    harvest: { cost: 2, production: 1 },
+    "clear forest": { cost: -1, production: 0 },
+    "burn forest": { cost: 5, production: 0 },
+    "grow forest": { cost: 5, production: 0 },
+  };
   static MAX_COST = 20; //max cost of an action
 
   type: TypeAction;
 
-  tile: TileSimulator | undefined;
-  tilesPossible: TileSimulator[];
+  tile: Tile | undefined;
+  tilesPossible: Tile[];
   state: State;
+  prevResource: Resource | null = null;
 
-  constructor(state: State, tile: TileSimulator | undefined, type: TypeAction) {
+  constructor(state: State, tile: Tile | undefined, type: TypeAction) {
     this.type = type;
     if (tile) this.tilesPossible = [tile];
     else this.tilesPossible = [];
@@ -38,33 +35,102 @@ export class Action {
   }
 
   apply() {
-    if (!this.tile) this.tile = getRandomElement(this.tilesPossible);
-    if (this.tile.city) {
-      this.state.stars -= Action.DATA[this.type].cost;
-      return this.tile.city.addPopulations(this.state, Action.DATA[this.type].production);
+    if (this.type === "end turn") {
+      this.state.turn++;
+      this.state.stars += this.state.stars_production;
+      return false;
+    } else {
+      let cityLevelling = false;
+      if (!this.tile) this.tile = getRandomElement(this.tilesPossible);
+      if (this.tile.city) {
+        this.state.stars -= Action.DATA[this.type].cost;
+        cityLevelling = this.tile.city.addPopulations(this.state, Action.DATA[this.type].production);
+        switch (this.type) {
+          case "farm":
+          case "mine":
+          case "lumber hut":
+            this.tile.building = this.type as Building;
+            break;
+          case "mountain temple":
+          case "forest temple":
+          case "temple":
+            this.tile.building = this.type as Building;
+            this.state.points += State.points_value.temple;
+            break;
+          case "harvest":
+          case "hunting":
+            this.prevResource = this.tile.resource;
+            this.tile.resource = null;
+            break;
+          case "clear forest":
+          case "burn forest":
+          case "grow forest":
+            this.prevResource = this.tile.resource;
+            this.tile.resource = this.type === "burn forest" ? "crop" : null;
+            if (this.type === "grow forest") {
+              this.tile.biome = "forest";
+              this.tile.hasBeenGrown = true;
+            } else this.tile.biome = "field";
+            this.tile.hasBeenTerraform++;
+        }
+      }
+      return cityLevelling;
     }
-    return false;
   }
 
   undo() {
-    if (this.tile && this.tile.city) {
-      this.state.stars += Action.DATA[this.type].cost;
-      this.tile.city.removePopulations(this.state, Action.DATA[this.type].production);
+    if (this.type === "end turn") {
+      this.state.turn--;
+      this.state.stars -= this.state.stars_production;
+    } else {
+      if (this.tile && this.tile.city) {
+        this.state.stars += Action.DATA[this.type].cost;
+        this.tile.city.removePopulations(this.state, Action.DATA[this.type].production);
+        switch (this.type) {
+          case "farm":
+          case "mine":
+          case "lumber hut":
+            this.tile.building = null;
+            //increase level of neighbors SpecialBuilding
+            break;
+          case "mountain temple":
+          case "forest temple":
+          case "temple":
+            this.tile.building = null;
+            this.state.points -= State.points_value.temple;
+            break;
+          case "harvest":
+          case "hunting":
+            this.tile.resource = this.prevResource;
+            this.prevResource = null;
+            break;
+          case "clear forest":
+          case "burn forest":
+          case "grow forest":
+            this.tile.resource = this.prevResource;
+            this.prevResource = null;
+            if (this.type === "grow forest") {
+              this.tile.biome = "field";
+              this.tile.hasBeenGrown = false;
+            } else this.tile.biome = "forest";
+            this.tile.hasBeenTerraform--;
+        }
+      }
     }
   }
 
-  addPossibleTile(tile: TileSimulator) {
+  addPossibleTile(tile: Tile) {
     this.tilesPossible.push(tile);
   }
 
   clone(state: State) {
-    const ActionClass = Action.DATA[this.type].class;
-    const newAction = Object.create(ActionClass.prototype) as InstanceType<typeof ActionClass>;
+    const newAction = Object.create(Action.prototype) as Action;
     newAction.type = this.type;
 
     newAction.tile = this.tile ? state.map.getTile(this.tile.row, this.tile.col) : undefined;
     newAction.tilesPossible = this.tilesPossible.map((tile) => state.map.getTile(tile.row, tile.col));
     newAction.state = state;
+    newAction.prevResource = this.prevResource;
 
     return newAction;
   }
@@ -76,159 +142,3 @@ export class Action {
     return clone.score;
   }
 }
-
-export class Build extends Action {
-  constructor(state: State, tile: TileSimulator, type: TypeAction) {
-    super(state, tile, type);
-  }
-
-  apply() {
-    const cityLevelling = super.apply();
-    if (this.tile) {
-      this.tile.building = this.type as Building;
-    }
-    return cityLevelling;
-  }
-
-  undo() {
-    super.undo();
-    if (this.tile) {
-      this.tile.building = null;
-    }
-  }
-}
-
-export class BuildTemple extends Build {
-  constructor(state: State, tile: TileSimulator, type: TypeAction) {
-    super(state, tile, type);
-  }
-
-  apply() {
-    const cityLevelling = super.apply();
-    this.state.points += State.points_value.temple;
-    return cityLevelling;
-  }
-
-  undo() {
-    super.undo();
-  }
-}
-
-export class BuildExploitation extends Build {
-  constructor(state: State, tile: TileSimulator, type: TypeAction) {
-    super(state, tile, type);
-  }
-
-  apply() {
-    return super.apply();
-    //increase level of neighbors SpecialBuilding
-  }
-  undo() {
-    super.undo();
-  }
-}
-
-export class Forage extends Action {
-  prevResource: Resource | null = null;
-
-  constructor(state: State, tile: TileSimulator, type: TypeAction) {
-    super(state, tile, type);
-  }
-
-  apply() {
-    const cityLevelling = super.apply();
-    if (this.tile) {
-      this.prevResource = this.tile.resource;
-      this.tile.resource = null;
-    }
-    return cityLevelling;
-  }
-  undo() {
-    super.undo();
-    if (this.tile) {
-      this.tile.resource = this.prevResource;
-      this.prevResource = null;
-    }
-  }
-
-  clone(state: State) {
-    const newAction = super.clone(state) as Forage;
-    newAction.prevResource = this.prevResource;
-    return newAction;
-  }
-}
-
-export class Terraform extends Action {
-  prevResource: Resource | null = null;
-
-  constructor(state: State, tile: TileSimulator, type: TypeAction) {
-    super(state, tile, type);
-  }
-
-  apply() {
-    const cityLevelling = super.apply();
-    if (this.tile) {
-      this.prevResource = this.tile.resource;
-      this.tile.resource = this.type === "burn forest" ? "crop" : null;
-      if (this.type === "grow forest") {
-        this.tile.biome = "forest";
-        this.tile.hasBeenGrown = true;
-      } else this.tile.biome = "field";
-      this.tile.hasBeenTerraform++;
-    }
-    return cityLevelling;
-  }
-  undo() {
-    super.undo();
-    if (this.tile) {
-      this.tile.resource = this.prevResource;
-      this.prevResource = null;
-      if (this.type === "grow forest") {
-        this.tile.biome = "field";
-        this.tile.hasBeenGrown = false;
-      } else this.tile.biome = "forest";
-      this.tile.hasBeenTerraform--;
-    }
-  }
-
-  clone(state: State) {
-    const newAction = super.clone(state) as Terraform;
-    newAction.prevResource = this.prevResource;
-    return newAction;
-  }
-}
-
-export class EndTurn extends Action {
-  constructor(state: State) {
-    super(state, undefined, "end turn");
-  }
-
-  apply() {
-    this.state.turn++;
-    this.state.stars += this.state.stars_production;
-    return false;
-  }
-  undo() {
-    this.state.turn--;
-    this.state.stars -= this.state.stars_production;
-  }
-
-  clone(state: State) {
-    return new EndTurn(state);
-  }
-}
-
-Action.DATA = {
-  "end turn": { cost: 0, production: 0, class: EndTurn },
-  "forest temple": { cost: 15, production: 1, class: BuildTemple },
-  "mountain temple": { cost: 20, production: 1, class: BuildTemple },
-  temple: { cost: 20, production: 1, class: BuildTemple },
-  "lumber hut": { cost: 3, production: 1, class: BuildExploitation },
-  farm: { cost: 5, production: 2, class: BuildExploitation },
-  mine: { cost: 5, production: 2, class: BuildExploitation },
-  hunting: { cost: 2, production: 1, class: Forage },
-  harvest: { cost: 2, production: 1, class: Forage },
-  "clear forest": { cost: -1, production: 0, class: Terraform },
-  "burn forest": { cost: 5, production: 0, class: Terraform },
-  "grow forest": { cost: 5, production: 0, class: Terraform },
-};

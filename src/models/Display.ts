@@ -1,11 +1,11 @@
 import { AssetKeyBorder, assets } from "../assets.js";
 import { Biome, Building, Resource, Size } from "../types.js";
 import { MapGenerator } from "./Generator/MapGenerator.js";
+import { TileGenerator } from "./Generator/TileGenerator.js";
 import { City } from "./Simulator/City.js";
 import { Map } from "./Simulator/Map.js";
 import { State } from "./Simulator/State.js";
-import { TileSimulator } from "./Simulator/TileSimulator.js";
-import { Tile } from "./Tile.js";
+import { Tile } from "./Simulator/Tile.js";
 
 export class Display {
   static default_asset: "field" = "field"; //name of the asset used to calculate height and width
@@ -60,17 +60,17 @@ export class Display {
     }
   }
 
-  _get_x(tile: Tile) {
+  _get_x(tile: TileGenerator | Tile) {
     let posX = tile.col - tile.row;
     let deltaX = (posX * this.tile_width) / 2;
     return this.canvas_html.width / 2 - this.tile_width / 2 + deltaX;
   }
-  _get_y(tile: Tile) {
+  _get_y(tile: TileGenerator | Tile) {
     let posY = tile.col + tile.row - (this.map_size - 1);
     let deltaY = (posY * (this.tile_height * Display.ratio_ground)) / 2;
     return this.canvas_html.height / 2 - this.tile_height / 2 + deltaY;
   }
-  _draw(tile: Tile, image: HTMLImageElement, offsetY = 0) {
+  _draw(tile: TileGenerator | Tile, image: HTMLImageElement, offsetY = 0) {
     this.canvas.drawImage(
       image,
       this._get_x(tile),
@@ -87,7 +87,7 @@ export class Display {
       else {
         this._draw(tile, assets["field"] ?? new Image());
         if (tile.biome !== "field") this._draw(tile, assets[tile.biome] ?? new Image(), Display.offsetY[tile.biome]);
-        if (tile instanceof TileSimulator && tile.building) {
+        if (tile instanceof Tile && tile.building) {
           this._draw(tile, assets[tile.building] ?? new Image(), Display.offsetY[tile.building]);
         } else {
           if (tile.resource) this._draw(tile, assets[tile.resource] ?? new Image(), Display.offsetY[tile.resource]);

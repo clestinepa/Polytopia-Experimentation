@@ -1,5 +1,5 @@
 import { State } from "./State.js";
-import { TileSimulator } from "./TileSimulator.js";
+import { Tile } from "./Tile.js";
 
 export class City {
   city_id: number | null;
@@ -9,21 +9,21 @@ export class City {
   total_populations: number = 0;
   stars_production: number;
 
-  tiles: TileSimulator[];
+  tiles: Tile[];
 
-  constructor(tile: TileSimulator, id: number) {
+  constructor(tile: Tile, id: number) {
     this.tiles = [tile];
     this.city_id = id;
     this.linkCityToTile(tile);
     this.stars_production = this.city_id === 0 ? 2 : 1;
   }
 
-  linkCityToTile(tile: TileSimulator) {
+  linkCityToTile(tile: Tile) {
     tile.city = this;
     tile.city_id = this.city_id;
   }
 
-  addTile(tile: TileSimulator) {
+  addTile(tile: Tile) {
     this.tiles.push(tile);
     this.linkCityToTile(tile);
   }

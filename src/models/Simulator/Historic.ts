@@ -1,10 +1,10 @@
-import { ActionClass } from "./Action";
+import { Action } from "./Action";
 import { City } from "./City";
 import { State } from "./State";
-import { TileSimulator } from "./TileSimulator";
+import { Tile } from "./Tile";
 
 type ActionHistoric = {
-  action: ActionClass;
+  action: Action;
   msg?: {
     primary: string;
     secondary?: string;
@@ -32,7 +32,7 @@ export class Historic {
       if (city?.level == 4) reward = "Population Growth";
       return `🏘️ City ${city?.city_id} level ${city?.level} with ${reward}`;
     },
-    on: (tile: TileSimulator) => ` on (${tile.row}, ${tile.col})`,
+    on: (tile: Tile) => ` on (${tile.row}, ${tile.col})`,
   };
 
   actions: ActionHistoric[] = [];
@@ -40,7 +40,7 @@ export class Historic {
 
   constructor() {}
 
-  newAction(action: ActionClass) {
+  newAction(action: Action) {
     this.actions.push({ action });
   }
 
