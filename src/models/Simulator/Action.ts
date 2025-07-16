@@ -68,9 +68,9 @@ export class Action {
           this.tile.resource = this.type === "burn forest" ? "crop" : null;
           if (this.type === "grow forest") {
             this.tile.biome = "forest";
-            this.tile.hasBeenGrown = true;
+            // this.tile.hasBeenGrown = true;
           } else this.tile.biome = "field";
-          this.tile.hasBeenTerraform++;
+        // this.tile.hasBeenTerraform++;
       }
     }
   }
@@ -110,9 +110,9 @@ export class Action {
           this.prevResource = null;
           if (this.type === "grow forest") {
             this.tile.biome = "field";
-            this.tile.hasBeenGrown = false;
+            // this.tile.hasBeenGrown = false;
           } else this.tile.biome = "forest";
-          this.tile.hasBeenTerraform--;
+        // this.tile.hasBeenTerraform--;
       }
     }
   }
@@ -129,6 +129,8 @@ export class Action {
     newAction.tile = this.tile ? state.map.getTile(this.tile.row, this.tile.col) : undefined;
     newAction.state = state;
     newAction.prevResource = this.prevResource;
+
+    newAction.hasLevellingCity = this.hasLevellingCity;
 
     return newAction;
   }
