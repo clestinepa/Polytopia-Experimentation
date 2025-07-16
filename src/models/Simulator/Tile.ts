@@ -28,8 +28,8 @@ export class Tile {
   /** Clone without city */
   clone() {
     const newTile = Object.create(Tile.prototype) as Tile;
-    newTile.row = this.col;
-    newTile.col = this.row;
+    newTile.row = this.row;
+    newTile.col = this.col;
 
     newTile.known = this.known;
     newTile.city_id = this.city_id;

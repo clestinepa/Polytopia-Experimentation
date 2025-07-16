@@ -73,7 +73,7 @@ export class City {
    */
   undoAction(action: Action) {
     this._incrementPopulations(action.state, Action.DATA[action.type].production * -1);
-    if (this.populations < 0) {
+    if (action.hasLevellingCity) {
       this._levelling(action.state, false);
       action.hasLevellingCity = false;
     }
