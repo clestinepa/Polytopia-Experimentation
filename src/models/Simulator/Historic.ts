@@ -30,6 +30,7 @@ export class Historic {
       if (city?.level == 2) reward = "Workshop";
       if (city?.level == 3) reward = "Resources";
       if (city?.level == 4) reward = "Population Growth";
+      if (city?.level >= 5) reward = "Park";
       return `🏘️ City ${city?.city_id} level ${city?.level} with ${reward}`;
     },
     on: (tile: Tile) => ` on (${tile.row}, ${tile.col})`,
@@ -40,11 +41,7 @@ export class Historic {
 
   constructor() {}
 
-  newAction(action: Action) {
-    this.actions.push({ action });
-  }
-
-  createMsg(a: ActionHistoric) {
+  _createMsg(a: ActionHistoric) {
     if (!a.msg) {
       let primary = Historic.messages[a.action.type];
       if (a.action.type !== "end turn" && a.action.tile) primary += Historic.messages.on(a.action.tile);
@@ -57,7 +54,7 @@ export class Historic {
   next() {
     this.index++;
     this.actions[this.index].action.apply();
-    this.createMsg(this.actions[this.index]);
+    this._createMsg(this.actions[this.index]);
   }
   prev() {
     this.actions[this.index].action.undo();
@@ -72,6 +69,10 @@ export class Historic {
 
   get isCurrentLast() {
     return this.index === this.actions.length - 1;
+  }
+
+  newAction(action: Action) {
+    this.actions.push({ action });
   }
 
   clone(state: State) {

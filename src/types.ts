@@ -3,8 +3,8 @@ export type Size = 11 | 14 | 16 | 18 | 20 | 30;
 export type Biome = "field" | "forest" | "mountain" | "capital" | "village" | "lighthouse";
 export type Resource = "crop" | "metal" | "fruit" | "animal";
 export type Territory = "inner" | "outer" | "none";
-export type Building = Exploitation | Temple;
 
+export type Building = Exploitation | Temple;
 export type Temple = "mountain temple" | "forest temple" | "temple";
 export type Exploitation = "farm" | "mine" | "lumber hut";
 // export type SpecialBuilding = "forge" | "windmill" | "sawmill";

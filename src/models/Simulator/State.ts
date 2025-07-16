@@ -15,6 +15,7 @@ export class State {
     population: 5,
     levelUp: (level: number) => 50 - level * 5,
     temple: 100,
+    park: 250,
   };
 
   map: Map;
@@ -39,6 +40,12 @@ export class State {
   _addActionIfEnoughStars(type: TypeAction, tile: Tile) {
     if (this.stars >= Action.DATA[type].cost) this.actionsPossible.push(new Action(this, tile, type));
   }
+  /**
+   * Define actions possibles by look at all the tiles in a city and without building.
+   * Depending of the biome and the resource of the tile, add the right action in the list, only if
+   * the amount of stars is enough for the cost of this specific action.
+   * Add the action "end turn" because we can always end the turn.
+   */
   defineActionsPossible() {
     this.actionsPossible = [new Action(this, undefined, "end turn")];
     this.map.tiles.forEach((tile) => {
@@ -61,6 +68,9 @@ export class State {
     });
   }
 
+  /**
+   * Choose the next action and apply it
+   */
   next(verbose = true) {
     if (this.historic.isCurrentLast) {
       this.defineActionsPossible();
@@ -75,6 +85,10 @@ export class State {
     this.historic.prev();
   }
 
+  /**
+   * Clone everything.
+   * @returns the cloned state
+   */
   clone() {
     const newSimulator = Object.create(State.prototype) as State;
     newSimulator.populations = this.populations;

@@ -33,12 +33,15 @@ export class Action {
     this.state = state;
   }
 
+  /**
+   * Apply the action to its state.
+   * Modify its tile, the city of its tile, populations, stars, starts_productions, points and turn depending of the type of the action.
+   */
   apply() {
     if (this.type === "end turn") {
       this.state.turn++;
       this.state.stars += this.state.stars_production;
     } else if (this.tile && this.tile.city) {
-      let cityLevelling = false;
       this.state.stars -= Action.DATA[this.type].cost;
       this.tile.city.applyAction(this);
       switch (this.type) {
@@ -69,11 +72,12 @@ export class Action {
           } else this.tile.biome = "field";
           this.tile.hasBeenTerraform++;
       }
-      return cityLevelling;
     }
-    return false;
   }
 
+  /**
+   * Undo the action to its state.
+   */
   undo() {
     if (this.type === "end turn") {
       this.state.turn--;
@@ -113,6 +117,11 @@ export class Action {
     }
   }
 
+  /**
+   * Clone the action and link it to a specific state (so its tile)
+   * @param state the state linked to the cloned action
+   * @returns the cloned action
+   */
   clone(state: State) {
     const newAction = Object.create(Action.prototype) as Action;
     newAction.type = this.type;

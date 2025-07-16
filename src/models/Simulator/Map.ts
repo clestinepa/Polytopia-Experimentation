@@ -24,7 +24,11 @@ export class Map {
     });
   }
 
-  /** Clone and link tiles to cities */
+  /**
+   * Clone everything and link cities and tiles together thanks to the city_id.
+   * A clone has isDisplayMap to false.
+   * @returns the cloned map
+   */
   clone() {
     const newMap = Object.create(Map.prototype) as Map;
     newMap.size = this.size;
