@@ -38,8 +38,6 @@ export function runMCTS(rootState: State, verbose: boolean, iterations: number |
   const bestChild = root.children.reduce((a, b) => (a.visits > b.visits ? a : b));
   if (!bestChild.action) return;
 
-  // if (bestChild.action.type === "clear forest") verbose = true;
-  // verbose = true;
   if (verbose) {
     console.log("");
     console.log(`[RESULT] All children:`);
@@ -60,9 +58,6 @@ export function runMCTS(rootState: State, verbose: boolean, iterations: number |
  */
 function simulateRandomGame(state: State) {
   while (!state.isTerminal) {
-    const actionGreedy = state.actionsPossible
-      .map((a) => ({ a, score: a.futureScore }))
-      .sort((a, b) => b.score - a.score)[0].a;
     const action = getRandomElement(state.actionsPossible);
     action.apply();
   }

@@ -44,26 +44,25 @@ export class Historic {
     this.actions.push({ action });
   }
 
-  createMsg(action: ActionHistoric, cityLevelling: Boolean) {
-    if (!action.msg) {
-      let primary = Historic.messages[action.action.type];
-      if (action.action.type !== "end turn" && action.action.tile) primary += Historic.messages.on(action.action.tile);
-      action.msg = { primary };
-      if (cityLevelling && action.action.tile && action.action.tile.city)
-        action.msg.secondary = Historic.messages.city_level(action.action.tile.city);
+  createMsg(a: ActionHistoric) {
+    if (!a.msg) {
+      let primary = Historic.messages[a.action.type];
+      if (a.action.type !== "end turn" && a.action.tile) primary += Historic.messages.on(a.action.tile);
+      a.msg = { primary };
+      if (a.action.hasLevellingCity && a.action.tile && a.action.tile.city)
+        a.msg.secondary = Historic.messages.city_level(a.action.tile.city);
     }
   }
 
   next() {
     this.index++;
-    const cityLevelling = this.actions[this.index].action.apply();
-    this.createMsg(this.actions[this.index], cityLevelling);
+    this.actions[this.index].action.apply();
+    this.createMsg(this.actions[this.index]);
   }
   prev() {
     this.actions[this.index].action.undo();
     this.index--;
   }
-
   goTo(index: number) {
     while (this.index !== index) {
       if (index < this.index) this.prev();

@@ -24,6 +24,7 @@ export class Map {
     });
   }
 
+  /** Clone and link tiles to cities */
   clone() {
     const newMap = Object.create(Map.prototype) as Map;
     newMap.size = this.size;

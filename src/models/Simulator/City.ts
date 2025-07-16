@@ -1,3 +1,4 @@
+import { Action } from "./Action.js";
 import { State } from "./State.js";
 import { Tile } from "./Tile.js";
 
@@ -40,32 +41,31 @@ export class City {
     state.stars_production += value;
   }
 
-  addPopulations(state: State, value: number) {
-    this.incrementPopulations(state, value);
-    if (this.populations >= this.level + 1) {
-      this.level++;
-      state.points += State.points_value.levelUp(this.level);
-      this.incrementStarProduction(state, 1);
-      if (this.level === 2) this.incrementStarProduction(state, 1);
-      else if (this.level === 3) state.stars += 5;
-      else if (this.level === 4) this.incrementPopulations(state, 3);
-      else if (this.level >= 5) this.incrementStarProduction(state, 1);
-      this.populations -= this.level;
-      return true;
-    }
-    return false;
+  levelling(state: State, isUpgrading = true) {
+    const s = isUpgrading ? 1 : -1;
+    if (isUpgrading) this.level++;
+    state.points += State.points_value.levelUp(this.level) * s;
+    this.incrementStarProduction(state, 1 * s);
+    if (this.level === 2) this.incrementStarProduction(state, 1 * s);
+    else if (this.level === 3) state.stars += 5 * s;
+    else if (this.level === 4) this.incrementPopulations(state, 3 * s);
+    else if (this.level >= 5) this.incrementStarProduction(state, 1 * s);
+    this.populations -= this.level * s;
+    if (!isUpgrading) this.level--;
   }
-  removePopulations(state: State, value: number) {
-    this.incrementPopulations(state, value * -1);
+
+  applyAction(action: Action) {
+    this.incrementPopulations(action.state, Action.DATA[action.type].production);
+    if (this.populations >= this.level + 1) {
+      this.levelling(action.state);
+      action.hasLevellingCity = true;
+    }
+  }
+  undoAction(action: Action) {
+    this.incrementPopulations(action.state, Action.DATA[action.type].production * -1);
     if (this.populations < 0) {
-      state.points -= State.points_value.levelUp(this.level);
-      this.level--;
-      this.incrementStarProduction(state, -1);
-      if (this.level === 1) this.incrementStarProduction(state, -1);
-      else if (this.level === 2) state.stars -= 5;
-      else if (this.level === 3) this.incrementPopulations(state, -3);
-      else if (this.level >= 4) this.incrementStarProduction(state, -1);
-      this.populations += this.level + 1;
+      this.levelling(action.state, false);
+      action.hasLevellingCity = false;
     }
   }
 

@@ -7,6 +7,7 @@ import { Tile } from "./Tile.js";
 import { Historic } from "./Historic.js";
 
 export class State {
+  static max_turn = 30;
   static points_value = {
     known: 5,
     city: 100,
@@ -35,36 +36,32 @@ export class State {
       State.points_value.city;
   }
 
-  _addActionPossible(type: TypeAction, tile: Tile) {
-    if (this.stars >= Action.DATA[type].cost) {
-      const existingAction = this.actionsPossible.find((action) => action.type === type);
-      if (existingAction) existingAction.addPossibleTile(tile);
-      else this.actionsPossible.push(new Action(this, tile, type));
-    }
+  _addActionIfEnoughStars(type: TypeAction, tile: Tile) {
+    if (this.stars >= Action.DATA[type].cost) this.actionsPossible.push(new Action(this, tile, type));
   }
   defineActionsPossible() {
     this.actionsPossible = [new Action(this, undefined, "end turn")];
     this.map.tiles.forEach((tile) => {
       if (!tile.city || tile.building) return;
       if (tile.biome === "mountain") {
-        if (tile.resource === "metal") this._addActionPossible("mine", tile);
-        this._addActionPossible("mountain temple", tile);
+        if (tile.resource === "metal") this._addActionIfEnoughStars("mine", tile);
+        this._addActionIfEnoughStars("mountain temple", tile);
       } else if (tile.biome === "forest") {
-        if (tile.resource === "animal") this._addActionPossible("hunting", tile);
-        this._addActionPossible("forest temple", tile);
-        if (!tile.hasBeenTerraform) this._addActionPossible("clear forest", tile);
-        if (!tile.hasBeenTerraform || tile.hasBeenGrown) this._addActionPossible("burn forest", tile);
-        this._addActionPossible("lumber hut", tile);
+        if (tile.resource === "animal") this._addActionIfEnoughStars("hunting", tile);
+        this._addActionIfEnoughStars("forest temple", tile);
+        if (!tile.hasBeenTerraform) this._addActionIfEnoughStars("clear forest", tile);
+        if (!tile.hasBeenTerraform || tile.hasBeenGrown) this._addActionIfEnoughStars("burn forest", tile);
+        this._addActionIfEnoughStars("lumber hut", tile);
       } else if (tile.biome === "field") {
-        if (tile.resource === "fruit") this._addActionPossible("harvest", tile);
-        if (tile.resource === "crop") this._addActionPossible("farm", tile);
-        this._addActionPossible("temple", tile);
-        if (!tile.hasBeenTerraform) this._addActionPossible("grow forest", tile);
+        if (tile.resource === "fruit") this._addActionIfEnoughStars("harvest", tile);
+        if (tile.resource === "crop") this._addActionIfEnoughStars("farm", tile);
+        this._addActionIfEnoughStars("temple", tile);
+        if (!tile.hasBeenTerraform) this._addActionIfEnoughStars("grow forest", tile);
       }
     });
   }
 
-  next(verbose = false) {
+  next(verbose = true) {
     if (this.historic.isCurrentLast) {
       this.defineActionsPossible();
       const bestAction = runMCTS(this, verbose);
@@ -91,9 +88,7 @@ export class State {
   }
 
   get score() {
-    const tilePotentials = this.map.tiles.map((tile) => tile.potentialMax);
-    const totalPotential = tilePotentials.reduce((a, b) => a + b, 0);
-    return this.populations + totalPotential;
+    return this.points + this.populations;
   }
 
   /**
@@ -101,6 +96,6 @@ export class State {
    */
   get isTerminal() {
     this.defineActionsPossible();
-    return this.actionsPossible.length === 1 && this.stars >= Action.MAX_COST;
+    return (this.actionsPossible.length === 1 && this.stars >= Action.MAX_COST) || this.turn >= State.max_turn;
   }
 }

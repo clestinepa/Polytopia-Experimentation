@@ -1,5 +1,4 @@
 import { Building, Resource, TypeAction } from "../../types.js";
-import { getRandomElement } from "../../utils.js";
 import { State } from "./State.js";
 import { Tile } from "./Tile.js";
 
@@ -23,14 +22,14 @@ export class Action {
   type: TypeAction;
 
   tile: Tile | undefined;
-  tilesPossible: Tile[];
   state: State;
   prevResource: Resource | null = null;
 
+  hasLevellingCity = false;
+
   constructor(state: State, tile: Tile | undefined, type: TypeAction) {
     this.type = type;
-    if (tile) this.tilesPossible = [tile];
-    else this.tilesPossible = [];
+    this.tile = tile;
     this.state = state;
   }
 
@@ -38,89 +37,80 @@ export class Action {
     if (this.type === "end turn") {
       this.state.turn++;
       this.state.stars += this.state.stars_production;
-      return false;
-    } else {
+    } else if (this.tile && this.tile.city) {
       let cityLevelling = false;
-      if (!this.tile) this.tile = getRandomElement(this.tilesPossible);
-      if (this.tile.city) {
-        this.state.stars -= Action.DATA[this.type].cost;
-        cityLevelling = this.tile.city.addPopulations(this.state, Action.DATA[this.type].production);
-        switch (this.type) {
-          case "farm":
-          case "mine":
-          case "lumber hut":
-            this.tile.building = this.type as Building;
-            break;
-          case "mountain temple":
-          case "forest temple":
-          case "temple":
-            this.tile.building = this.type as Building;
-            this.state.points += State.points_value.temple;
-            break;
-          case "harvest":
-          case "hunting":
-            this.prevResource = this.tile.resource;
-            this.tile.resource = null;
-            break;
-          case "clear forest":
-          case "burn forest":
-          case "grow forest":
-            this.prevResource = this.tile.resource;
-            this.tile.resource = this.type === "burn forest" ? "crop" : null;
-            if (this.type === "grow forest") {
-              this.tile.biome = "forest";
-              this.tile.hasBeenGrown = true;
-            } else this.tile.biome = "field";
-            this.tile.hasBeenTerraform++;
-        }
+      this.state.stars -= Action.DATA[this.type].cost;
+      this.tile.city.applyAction(this);
+      switch (this.type) {
+        case "farm":
+        case "mine":
+        case "lumber hut":
+          this.tile.building = this.type as Building;
+          break;
+        case "mountain temple":
+        case "forest temple":
+        case "temple":
+          this.tile.building = this.type as Building;
+          this.state.points += State.points_value.temple;
+          break;
+        case "harvest":
+        case "hunting":
+          this.prevResource = this.tile.resource;
+          this.tile.resource = null;
+          break;
+        case "clear forest":
+        case "burn forest":
+        case "grow forest":
+          this.prevResource = this.tile.resource;
+          this.tile.resource = this.type === "burn forest" ? "crop" : null;
+          if (this.type === "grow forest") {
+            this.tile.biome = "forest";
+            this.tile.hasBeenGrown = true;
+          } else this.tile.biome = "field";
+          this.tile.hasBeenTerraform++;
       }
       return cityLevelling;
     }
+    return false;
   }
 
   undo() {
     if (this.type === "end turn") {
       this.state.turn--;
       this.state.stars -= this.state.stars_production;
-    } else {
-      if (this.tile && this.tile.city) {
-        this.state.stars += Action.DATA[this.type].cost;
-        this.tile.city.removePopulations(this.state, Action.DATA[this.type].production);
-        switch (this.type) {
-          case "farm":
-          case "mine":
-          case "lumber hut":
-            this.tile.building = null;
-            //increase level of neighbors SpecialBuilding
-            break;
-          case "mountain temple":
-          case "forest temple":
-          case "temple":
-            this.tile.building = null;
-            this.state.points -= State.points_value.temple;
-            break;
-          case "harvest":
-          case "hunting":
-            this.tile.resource = this.prevResource;
-            this.prevResource = null;
-            break;
-          case "clear forest":
-          case "burn forest":
-          case "grow forest":
-            this.tile.resource = this.prevResource;
-            this.prevResource = null;
-            if (this.type === "grow forest") {
-              this.tile.biome = "field";
-              this.tile.hasBeenGrown = false;
-            } else this.tile.biome = "forest";
-            this.tile.hasBeenTerraform--;
-        }
+    } else if (this.tile && this.tile.city) {
+      this.state.stars += Action.DATA[this.type].cost;
+      this.tile.city.undoAction(this);
+      switch (this.type) {
+        case "farm":
+        case "mine":
+        case "lumber hut":
+          this.tile.building = null;
+          //increase level of neighbors SpecialBuilding
+          break;
+        case "mountain temple":
+        case "forest temple":
+        case "temple":
+          this.tile.building = null;
+          this.state.points -= State.points_value.temple;
+          break;
+        case "harvest":
+        case "hunting":
+          this.tile.resource = this.prevResource;
+          this.prevResource = null;
+          break;
+        case "clear forest":
+        case "burn forest":
+        case "grow forest":
+          this.tile.resource = this.prevResource;
+          this.prevResource = null;
+          if (this.type === "grow forest") {
+            this.tile.biome = "field";
+            this.tile.hasBeenGrown = false;
+          } else this.tile.biome = "forest";
+          this.tile.hasBeenTerraform--;
       }
     }
-  }
-
-  addPossibleTile(tile: Tile) {
-    this.tilesPossible.push(tile);
   }
 
   clone(state: State) {
@@ -128,17 +118,9 @@ export class Action {
     newAction.type = this.type;
 
     newAction.tile = this.tile ? state.map.getTile(this.tile.row, this.tile.col) : undefined;
-    newAction.tilesPossible = this.tilesPossible.map((tile) => state.map.getTile(tile.row, tile.col));
     newAction.state = state;
     newAction.prevResource = this.prevResource;
 
     return newAction;
-  }
-
-  get futureScore() {
-    const clone = this.state.clone();
-    const testAction = this.clone(clone);
-    testAction.apply();
-    return clone.score;
   }
 }
