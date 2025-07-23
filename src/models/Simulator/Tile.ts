@@ -14,9 +14,6 @@ export class Tile {
   resource: Resource | null;
   building: Building | null = null;
 
-  hasBeenTerraform: 0 | 1 | 2 = 0;
-  hasBeenGrown: boolean = false;
-
   constructor(tileGenerator: TileGenerator) {
     this.row = tileGenerator.row;
     this.col = tileGenerator.col;
@@ -25,7 +22,10 @@ export class Tile {
     this.known = tileGenerator.known;
   }
 
-  /** Clone without city */
+  /**
+   * Clone the tile with city_id but not city (keep it null)
+   * @returns the cloned tile
+   */
   clone() {
     const newTile = Object.create(Tile.prototype) as Tile;
     newTile.row = this.row;
@@ -33,13 +33,11 @@ export class Tile {
 
     newTile.known = this.known;
     newTile.city_id = this.city_id;
+    newTile.city = null;
 
     newTile.biome = this.biome;
     newTile.resource = this.resource;
     newTile.building = this.building;
-
-    newTile.hasBeenTerraform = this.hasBeenTerraform;
-    newTile.hasBeenGrown = this.hasBeenGrown;
     return newTile;
   }
 }

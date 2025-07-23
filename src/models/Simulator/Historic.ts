@@ -75,6 +75,10 @@ export class Historic {
     this.actions.push({ action });
   }
 
+  /**
+   * Clone everything.
+   * @returns the cloned historic
+   */
   clone(state: State) {
     const newHistoric = Object.create(Historic.prototype) as Historic;
     newHistoric.actions = this.actions.map((action) => {

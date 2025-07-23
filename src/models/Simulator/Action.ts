@@ -66,11 +66,8 @@ export class Action {
         case "grow forest":
           this.prevResource = this.tile.resource;
           this.tile.resource = this.type === "burn forest" ? "crop" : null;
-          if (this.type === "grow forest") {
-            this.tile.biome = "forest";
-            // this.tile.hasBeenGrown = true;
-          } else this.tile.biome = "field";
-        // this.tile.hasBeenTerraform++;
+          if (this.type === "grow forest") this.tile.biome = "forest";
+          else this.tile.biome = "field";
       }
     }
   }
@@ -108,11 +105,8 @@ export class Action {
         case "grow forest":
           this.tile.resource = this.prevResource;
           this.prevResource = null;
-          if (this.type === "grow forest") {
-            this.tile.biome = "field";
-            // this.tile.hasBeenGrown = false;
-          } else this.tile.biome = "forest";
-        // this.tile.hasBeenTerraform--;
+          if (this.type === "grow forest") this.tile.biome = "field";
+          else this.tile.biome = "forest";
       }
     }
   }
@@ -126,7 +120,9 @@ export class Action {
     const newAction = Object.create(Action.prototype) as Action;
     newAction.type = this.type;
 
-    newAction.tile = this.tile ? state.map.getTile(this.tile.row, this.tile.col) : undefined;
+    newAction.tile = this.tile
+      ? state.map.tiles.find((t) => t.row === this.tile!.row && t.col === this.tile!.col)
+      : undefined;
     newAction.state = state;
     newAction.prevResource = this.prevResource;
 

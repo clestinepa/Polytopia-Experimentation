@@ -24,8 +24,8 @@ export class State {
   stars: number = 5;
   stars_production: number = 2;
   points: number;
-
   turn: number = 0;
+
   actionsPossible: Action[] = [];
   historic: Historic = new Historic();
 
@@ -56,14 +56,14 @@ export class State {
       } else if (tile.biome === "forest") {
         if (tile.resource === "animal") this._addActionIfEnoughStars("hunting", tile);
         this._addActionIfEnoughStars("forest temple", tile);
-        if (!tile.hasBeenTerraform) this._addActionIfEnoughStars("clear forest", tile);
-        if (!tile.hasBeenTerraform || tile.hasBeenGrown) this._addActionIfEnoughStars("burn forest", tile);
+        this._addActionIfEnoughStars("clear forest", tile);
+        this._addActionIfEnoughStars("burn forest", tile);
         this._addActionIfEnoughStars("lumber hut", tile);
       } else if (tile.biome === "field") {
         if (tile.resource === "fruit") this._addActionIfEnoughStars("harvest", tile);
         if (tile.resource === "crop") this._addActionIfEnoughStars("farm", tile);
         this._addActionIfEnoughStars("temple", tile);
-        if (!tile.hasBeenTerraform) this._addActionIfEnoughStars("grow forest", tile);
+        this._addActionIfEnoughStars("grow forest", tile);
       }
     });
   }
@@ -90,15 +90,18 @@ export class State {
    * @returns the cloned state
    */
   clone() {
-    const newSimulator = Object.create(State.prototype) as State;
-    newSimulator.populations = this.populations;
-    newSimulator.stars = this.stars;
-    newSimulator.stars_production = this.stars_production;
-    newSimulator.map = this.map.clone();
-    newSimulator.turn = this.turn;
-    newSimulator.actionsPossible = this.actionsPossible.map((action) => action.clone(newSimulator));
-    newSimulator.historic = this.historic.clone(newSimulator);
-    return newSimulator;
+    const newState = Object.create(State.prototype) as State;
+    newState.map = this.map.clone();
+
+    newState.populations = this.populations;
+    newState.stars = this.stars;
+    newState.stars_production = this.stars_production;
+    newState.turn = this.turn;
+    newState.points = this.points;
+
+    newState.actionsPossible = this.actionsPossible.map((a) => a.clone(newState));
+    newState.historic = this.historic.clone(newState);
+    return newState;
   }
 
   get score() {

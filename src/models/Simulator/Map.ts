@@ -34,15 +34,22 @@ export class Map {
     newMap.size = this.size;
     newMap.isDisplayMap = false;
     newMap.tiles = this.tiles.map((tile) => tile.clone());
-    newMap.cities = this.cities.map((city) => city.clone());
-    //link cities and tiles together
-    newMap.tiles.forEach((tile) => {
-      if (tile.city_id !== null) newMap.cities[tile.city_id].addTile(tile);
-    });
-    return newMap;
-  }
 
-  getTile(row: number, col: number) {
-    return this.tiles[col * this.size + row];
+    // Create empty city list
+    newMap.cities = [];
+    // Re-link tiles to cities dynamically using city_id
+    for (const tile of newMap.tiles) {
+      if (tile.city_id !== null) {
+        let city = newMap.cities.find((c) => c.city_id === tile.city_id);
+        if (!city) {
+          city = new City(tile, tile.city_id);
+          newMap.cities[tile.city_id] = city;
+        } else {
+          city.addTile(tile);
+        }
+      }
+    }
+
+    return newMap;
   }
 }

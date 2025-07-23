@@ -87,19 +87,4 @@ export class City {
     this.tiles.push(tile);
     this._linkCityToTile(tile);
   }
-
-  /**
-   * Clone the city with tiles empty
-   * @returns the cloned city
-   */
-  clone() {
-    const newCity = Object.create(City.prototype) as City;
-    newCity.city_id = this.city_id;
-    newCity.level = this.level;
-    newCity.populations = this.populations;
-    newCity.total_populations = this.total_populations;
-    newCity.stars_production = this.stars_production;
-    newCity.tiles = [];
-    return newCity;
-  }
 }
