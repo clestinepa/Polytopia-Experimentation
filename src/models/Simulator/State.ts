@@ -2,9 +2,11 @@ import { Map } from "./Map.js";
 import { Action } from "./Action.js";
 import { MapGenerator } from "../Generator/MapGenerator.js";
 import { runMCTS } from "../MCTS/MCTSRunner.js";
-import { TypeAction } from "../../types.js";
+import { IAChoices, TypeAction } from "../../types.js";
 import { Tile } from "./Tile.js";
 import { Historic } from "./Historic.js";
+import { runBeamSearch } from "../Beam Search/BeamSearch.js";
+import { getRandomElement } from "../../utils.js";
 
 export class State {
   static max_turn = 30;
@@ -73,10 +75,21 @@ export class State {
    */
   next(verbose = true) {
     if (this.historic.isCurrentLast) {
+      const radios = document.getElementsByName("ia") as NodeListOf<HTMLInputElement>;
+      const checked = Array.from(radios).find((r) => r.checked) as HTMLInputElement;
+      const choice = checked.value as IAChoices;
+
       this.defineActionsPossible();
-      const bestAction = runMCTS(this, verbose);
-      if (!bestAction) return;
-      this.historic.newAction(bestAction);
+      switch (choice) {
+        case "random":
+          this.historic.newAction(getRandomElement(this.actionsPossible));
+          break;
+        case "MCTS":
+        case "beam search":
+          const bestAction = choice === "MCTS" ? runMCTS(this, verbose) : runBeamSearch(this, 5, 10, verbose);
+          if (!bestAction) return;
+          this.historic.newAction(bestAction);
+      }
     }
     this.historic.next();
   }
@@ -105,7 +118,7 @@ export class State {
   }
 
   get score() {
-    return this.points + this.populations;
+    return this.populations + 0.01 * this.stars;
   }
 
   /**
@@ -113,6 +126,6 @@ export class State {
    */
   get isTerminal() {
     this.defineActionsPossible();
-    return (this.actionsPossible.length === 1 && this.stars >= Action.MAX_COST) || this.turn >= State.max_turn;
+    return this.actionsPossible.length === 1 && this.stars >= Action.MAX_COST;
   }
 }

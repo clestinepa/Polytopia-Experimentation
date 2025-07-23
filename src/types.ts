@@ -11,3 +11,6 @@ export type Exploitation = "farm" | "mine" | "lumber hut";
 export type Foraging = "harvest" | "hunting";
 export type Terraforming = "clear forest" | "burn forest" | "grow forest";
 export type TypeAction = Building | Foraging | Terraforming | "end turn";
+
+export type IAChoices = "random" | "MCTS" | "beam search";
+

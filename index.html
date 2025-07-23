@@ -11,7 +11,6 @@
     <main>
       <div id="settings">
         <button id="generate">Generate</button>
-
         <div class="radio_group">
           <h4>Map size:</h4>
           <input type="radio" id="tiny" name="map_size" value="11" checked /><label for="tiny">Tiny</label><br />
@@ -20,6 +19,12 @@
           <input type="radio" id="large" name="map_size" value="18" /><label for="large">Large</label><br />
           <input type="radio" id="huge" name="map_size" value="20" /><label for="huge">Huge</label><br />
           <input type="radio" id="massive" name="map_size" value="30" /><label for="massive">Massive</label>
+        </div>
+        <div class="radio_group">
+          <h4>IA:</h4>
+          <input type="radio" id="random" name="ia" value="random" checked /><label for="random">Random</label><br />
+          <input type="radio" id="mcts" name="ia" value="MCTS" /><label for="mcts">MCTS</label><br />
+          <input type="radio" id="beam" name="ia" value="beam search" /><label for="beam">BeamSearch</label><br />
         </div>
       </div>
 

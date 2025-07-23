@@ -45,9 +45,33 @@ button {
   align-items: center;
   margin: 16px;
   gap: 32px;
-  & .radio_group {
-    display: flex;
-    gap: 8px;
+}
+
+.radio_group {
+  display: flex;
+  align-items: center;
+  & h4 {
+    margin-right: 16px;
+  }
+  & input {
+    display: none;
+  }
+  & label {
+    margin-left: -1px;
+    padding: 4px;
+    border: 1px solid gray;
+    color: gray;
+    &:first-of-type {
+      border-radius: 4px 0 0 4px;
+    }
+    &:last-of-type {
+      border-radius: 0 4px 4px 0;
+    }
+  }
+  & input:checked + label {
+    border-color: white;
+    color: white;
+    z-index: 5;
   }
 }
 
