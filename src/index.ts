@@ -39,7 +39,9 @@ nextButton.addEventListener("click", () => {
     state = new State(mapGeneration, true);
     startButtons();
   } else {
-    state.next();
+    const radios = document.getElementsByName("verbose") as NodeListOf<HTMLInputElement>;
+    const checked = Array.from(radios).find((r) => r.checked) as HTMLInputElement;
+    state.next(checked.value === "true");
     changeDisablePrev();
   }
 
@@ -52,7 +54,9 @@ runButton.addEventListener("click", () => {
   if (!state) {
     state = new State(mapGeneration, true);
   }
-  while (!state.isTerminal && state.stars < 500) state.next();
+  const radios = document.getElementsByName("verbose") as NodeListOf<HTMLInputElement>;
+  const checked = Array.from(radios).find((r) => r.checked) as HTMLInputElement;
+  while (!state.isTerminal && state.stars < 500) state.next(checked.value === "true");
   changeDisablePrev();
 
   display.drawState(state);

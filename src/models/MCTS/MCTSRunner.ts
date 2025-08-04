@@ -3,13 +3,22 @@ import { State } from "../Simulator/State.js";
 import { MCTSNode } from "./MCTSNode.js";
 
 /**
- * Runs the Monte Carlo Tree Search algorithm starting from the root node.
- * @param rootState the initial game state
- * @param verbose display log if true
- * @param iterations he number of MCTS iterations to perform, 100 by default
- * @returns the best action to take next node (highest average score)
+ * Runs the Monte Carlo Tree Search (MCTS) algorithm starting from the given root game state.
+ *
+ * MCTS builds a search tree by performing a number of simulations (iterations),
+ * balancing exploration and exploitation using the Upper Confidence Bound (UCT) formula.
+ * The algorithm follows four key steps:
+ * 1. Selection – Traverse the tree using UCT to select a promising node.
+ * 2. Expansion – Add a child node by performing one unexplored action.
+ * 3. Simulation – Simulate a random game from the new node to estimate its value.
+ * 4. Backpropagation – Propagate the simulation result up the tree.
+ *
+ * @param rootState - The initial game state to start the search from. Cloned to avoid mutation.
+ * @param iterations - The number of MCTS iterations (simulations) to perform.
+ * @param verbose - Optional. If true, prints debug information after the search. Default is false.
+ * @returns The action associated with the most visited child of the root node (best average outcome), or undefined if no action is found.
  */
-export function runMCTS(rootState: State, verbose: boolean, iterations: number | undefined = 100) {
+export function runMCTS(rootState: State, iterations: number, verbose: boolean | undefined = false) {
   const root = new MCTSNode(rootState.clone());
 
   for (let i = 0; i < iterations; i++) {
@@ -52,7 +61,7 @@ export function runMCTS(rootState: State, verbose: boolean, iterations: number |
 }
 
 /**
- * Simulates a random play from the given simulator state until no actions are left.
+ * Simulates a random play from the given simulator state until a terminal state is reached.
  * @param state the state to run the simulation from
  * @returns the score resulting from the play
  */

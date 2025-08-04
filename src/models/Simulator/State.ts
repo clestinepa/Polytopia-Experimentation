@@ -73,7 +73,7 @@ export class State {
   /**
    * Choose the next action and apply it
    */
-  next(verbose = true) {
+  next(verbose = false) {
     if (this.historic.isCurrentLast) {
       const radios = document.getElementsByName("ia") as NodeListOf<HTMLInputElement>;
       const checked = Array.from(radios).find((r) => r.checked) as HTMLInputElement;
@@ -86,7 +86,7 @@ export class State {
           break;
         case "MCTS":
         case "beam search":
-          const bestAction = choice === "MCTS" ? runMCTS(this, verbose) : runBeamSearch(this, 5, 10, verbose);
+          const bestAction = choice === "MCTS" ? runMCTS(this, 100, verbose) : runBeamSearch(this, 5, 10, verbose);
           if (!bestAction) return;
           this.historic.newAction(bestAction);
       }
