@@ -31,7 +31,7 @@ export class Historic {
       if (city?.level == 3) reward = "Resources";
       if (city?.level == 4) reward = "Population Growth";
       if (city?.level >= 5) reward = "Park";
-      return `🏘️ City ${city?.city_id} level ${city?.level} with ${reward}`;
+      return `🏘️ City ${city?.name} level ${city?.level} with ${reward}`;
     },
     on: (tile: Tile) => ` on (${tile.row}, ${tile.col})`,
   };

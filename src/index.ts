@@ -19,8 +19,9 @@ generateButton.addEventListener("click", () => {
   state = undefined;
 
   mapGeneration.generate();
-  display.drawMap(mapGeneration);
-  generateButtons();
+  state = new State(mapGeneration, true);
+  startButtons();
+  display.drawState(state);
 });
 
 prevButton.addEventListener("click", () => {
@@ -33,27 +34,19 @@ prevButton.addEventListener("click", () => {
 });
 
 nextButton.addEventListener("click", () => {
-  if (!mapGeneration || !display) return;
+  if (!mapGeneration || !state || !display) return;
 
-  if (!state) {
-    state = new State(mapGeneration, true);
-    startButtons();
-  } else {
-    const radios = document.getElementsByName("verbose") as NodeListOf<HTMLInputElement>;
-    const checked = Array.from(radios).find((r) => r.checked) as HTMLInputElement;
-    state.next(checked.value === "true");
-    changeDisablePrev();
-  }
+  const radios = document.getElementsByName("verbose") as NodeListOf<HTMLInputElement>;
+  const checked = Array.from(radios).find((r) => r.checked) as HTMLInputElement;
+  state.next(checked.value === "true");
+  changeDisablePrev();
 
   display.drawState(state);
 });
 
 runButton.addEventListener("click", () => {
-  if (!mapGeneration || !display) return;
+  if (!mapGeneration || !state || !display) return;
 
-  if (!state) {
-    state = new State(mapGeneration, true);
-  }
   const radios = document.getElementsByName("verbose") as NodeListOf<HTMLInputElement>;
   const checked = Array.from(radios).find((r) => r.checked) as HTMLInputElement;
   while (!state.isTerminal && state.stars < 500) state.next(checked.value === "true");
@@ -64,11 +57,8 @@ runButton.addEventListener("click", () => {
 
 document.addEventListener("DOMContentLoaded", get_assets);
 
-function generateButtons() {
-  prevButton.disabled = true;
-  info.style.visibility = "hidden";
-}
 function startButtons() {
+  prevButton.disabled = true;
   info.style.visibility = "visible";
 }
 

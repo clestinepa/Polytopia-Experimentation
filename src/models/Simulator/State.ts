@@ -35,7 +35,7 @@ export class State {
     this.map = new Map(map, isDisplayMap);
     this.points =
       this.map.tiles.filter((tile) => tile.known).length * State.points_value.known +
-      this.map.tiles.filter((tile) => tile.city_id !== null).length * State.points_value.city_territory +
+      this.map.tiles.filter((tile) => tile.city_name !== null).length * State.points_value.city_territory +
       State.points_value.city;
   }
 

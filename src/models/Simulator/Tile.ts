@@ -7,7 +7,7 @@ export class Tile {
   col: number;
 
   known: boolean = false;
-  city_id: number | null = null;
+  city_name: string | null = null;
   city: City | null = null;
 
   biome: Biome;
@@ -23,7 +23,7 @@ export class Tile {
   }
 
   /**
-   * Clone the tile with city_id but not city (keep it null)
+   * Clone the tile with city_name but not city (keep it null)
    * @returns the cloned tile
    */
   clone() {
@@ -32,7 +32,7 @@ export class Tile {
     newTile.col = this.col;
 
     newTile.known = this.known;
-    newTile.city_id = this.city_id;
+    newTile.city_name = this.city_name;
     newTile.city = null;
 
     newTile.biome = this.biome;

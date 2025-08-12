@@ -11,6 +11,7 @@ export class Display {
   static default_asset: "field" = "field"; //name of the asset used to calculate height and width
   static ratio_ground = 0.63; //(in %) % of the ground coverage from the top of the default_asset
   static canvas_margin = 64; //(in px) margin of the canvas
+  static text_padding = 4; //(in px) margin of the canvas
 
   static elements = {
     turn: document.getElementById("turn") as HTMLElement,
@@ -39,6 +40,7 @@ export class Display {
   map_size: Size;
   tile_height: number;
   tile_width: number;
+  text_height: number;
 
   constructor(size: Size) {
     this.map_size = size;
@@ -58,6 +60,10 @@ export class Display {
       this.tile_width = max_width / this.map_size;
       this.tile_height = (default_image.height * this.tile_width) / default_image.width;
     }
+    this.text_height = this.tile_height / 8;
+
+    this.canvas.font = `${this.text_height}px "Josefin Sans", sans-serif`;
+    this.canvas.textBaseline = "top";
   }
 
   _get_x(tile: TileGenerator | Tile) {
@@ -78,6 +84,53 @@ export class Display {
       this.tile_width,
       (image.height * this.tile_width) / image.width
     );
+  }
+
+  _drawCityName(city: City, tile: Tile) {
+    const text = `${city.isCapital ? "👑 " : ""}${city.name} ⭐${city.stars_production}`;
+    const textWidth = this.canvas.measureText(text).width;
+
+    const rw = textWidth + Display.text_padding;
+    const rh = this.text_height + Display.text_padding * 2;
+    const x = this._get_x(tile) + this.tile_width / 2 - rw / 2;
+    const y = this._get_y(tile) + (Display.ratio_ground / 2) * this.tile_height;
+
+    this.canvas.fillStyle = "rgba(54, 226, 170, 0.5)";
+    this.canvas.fillRect(x, y, rw, rh);
+
+    this._toggleShadow();
+    this.canvas.fillStyle = "white";
+    this.canvas.fillText(text, x, y + Display.text_padding);
+    this._drawUnderline(city.name, x, y + Display.text_padding);
+    this._toggleShadow();
+  }
+
+  _toggleShadow() {
+    if (this.canvas.shadowOffsetX !== 1) {
+      this.canvas.shadowColor = "rgba(35, 28, 28, 0.8)";
+      this.canvas.shadowBlur = 0;
+      this.canvas.shadowOffsetX = 1;
+      this.canvas.shadowOffsetY = 1;
+    } else {
+      this.canvas.shadowColor = "transparent";
+      this.canvas.shadowBlur = 0;
+      this.canvas.shadowOffsetX = 0;
+      this.canvas.shadowOffsetY = 0;
+    }
+  }
+
+  _drawUnderline(city_name: string, x: number, y: any) {
+    const width_name = this.canvas.measureText(city_name).width;
+    const margin_left = this.canvas.measureText("👑 ").width;
+
+    const underlineY = y + this.text_height + 0.5;
+    const underlineX = x + margin_left;
+    this.canvas.strokeStyle = "white";
+    this.canvas.lineWidth = 1;
+    this.canvas.beginPath();
+    this.canvas.moveTo(underlineX, underlineY);
+    this.canvas.lineTo(underlineX + width_name, underlineY);
+    this.canvas.stroke();
   }
 
   _drawTiles(map: MapGenerator | Map) {
@@ -121,10 +174,20 @@ export class Display {
     });
   }
 
+  _drawNames(cities: City[]) {
+    cities.forEach((city) => {
+      const c = city.tiles.find((t) => t.biome === "capital"); //TODO : add t.biome === "city"
+      if (c) this._drawCityName(city, c);
+    });
+  }
+
   drawMap(map: MapGenerator | Map) {
     this.canvas.clearRect(0, 0, this.canvas_html.width, this.canvas_html.height);
     this._drawTiles(map);
-    if (map instanceof Map) this._drawBorderCities(map.cities);
+    if (map instanceof Map) {
+      this._drawBorderCities(map.cities);
+      this._drawNames(map.cities);
+    }
   }
 
   drawInfo(state: State) {

@@ -3,7 +3,8 @@ import { State } from "./State.js";
 import { Tile } from "./Tile.js";
 
 export class City {
-  city_id: number;
+  isCapital: boolean;
+  name: string;
   level: number = 1;
 
   populations: number = 0;
@@ -12,16 +13,17 @@ export class City {
 
   tiles: Tile[];
 
-  constructor(tile: Tile, id: number) {
+  constructor(tile: Tile, name: string, isCapital = false) {
+    this.isCapital = isCapital;
+    this.name = name;
     this.tiles = [tile];
-    this.city_id = id;
     this._linkCityToTile(tile);
-    this.stars_production = this.city_id === 0 ? 2 : 1;
+    this.stars_production = isCapital ? 2 : 1;
   }
 
   _linkCityToTile(tile: Tile) {
     tile.city = this;
-    tile.city_id = this.city_id;
+    tile.city_name = this.name;
   }
 
   _incrementPopulations(state: State, value: number) {
@@ -86,5 +88,21 @@ export class City {
   addTile(tile: Tile) {
     this.tiles.push(tile);
     this._linkCityToTile(tile);
+  }
+
+  /**
+   * Clone the city with tiles empty
+   * @returns the cloned city
+   */
+  clone() {
+    const newCity = Object.create(City.prototype) as City;
+    newCity.isCapital = this.isCapital;
+    newCity.name = this.name;
+    newCity.level = this.level;
+    newCity.populations = this.populations;
+    newCity.total_populations = this.total_populations;
+    newCity.stars_production = this.stars_production;
+    newCity.tiles = [];
+    return newCity;
   }
 }
