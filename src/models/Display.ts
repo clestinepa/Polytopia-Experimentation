@@ -92,19 +92,42 @@ export class Display {
     const textWidth = this.ctx.measureText(text).width;
     const text_padding = this.text_height / 4;
 
-    const rw = textWidth + text_padding;
-    const rh = this.text_height + text_padding * 2;
-    const x = this._get_x(tile) + this.tile_width / 2 - rw / 2;
-    const y = this._get_y(tile) + (Display.ratio_ground / 2) * this.tile_height;
+    const rwText = textWidth + text_padding;
+    const rhText = this.text_height + text_padding * 2;
+    const xText = this._get_x(tile) + this.tile_width / 2 - rwText / 2;
+    const yText = this._get_y(tile) + (Display.ratio_ground / 2) * this.tile_height;
 
     this.ctx.fillStyle = "rgba(54, 226, 170, 0.5)";
-    this.ctx.fillRect(x, y, rw, rh);
+    this.ctx.fillRect(xText, yText, rwText, rhText);
 
     this._toggleShadow();
     this.ctx.fillStyle = "white";
-    this.ctx.fillText(text, x, y + text_padding);
-    this._drawUnderline(city.name, x, y + text_padding);
+    this.ctx.fillText(text, xText, yText + text_padding);
+    this._drawUnderline(city.name, xText, yText + text_padding);
     this._toggleShadow();
+
+    //stats
+    const populationNeeded = city.level + 1;
+    const ratioSize = populationNeeded === 2 ? 0.56 : populationNeeded === 3 ? 0.84 : 0.88;
+    const statsWidth = this.tile_width * ratioSize;
+    const statsGap = this.tile_width / 100;
+
+    const rwStats = (statsWidth - statsGap * city.level) / populationNeeded;
+    const rhStats = this.tile_height / 10;
+    const xStats = this._get_x(tile) + this.tile_width / 2 - statsWidth / 2;
+    const yStats = yText + rhText + text_padding;
+
+    for (let i = 0; i < populationNeeded; i++) {
+      this.ctx.fillStyle = city.populations > i ? "rgba(0, 153, 255, 1)" : "rgba(229, 229, 229, 1)";
+      this.ctx.beginPath();
+      this.ctx.roundRect(xStats + (rwStats + statsGap) * i, yStats, rwStats, rhStats, [
+        i === 0 ? rhStats : 0,
+        i === city.level ? rhStats : 0,
+        i === city.level ? rhStats : 0,
+        i === 0 ? rhStats : 0,
+      ]);
+      this.ctx.fill();
+    }
   }
 
   _toggleShadow() {
