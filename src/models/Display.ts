@@ -10,8 +10,7 @@ import { Tile } from "./Simulator/Tile.js";
 export class Display {
   static default_asset: "field" = "field"; //name of the asset used to calculate height and width
   static ratio_ground = 0.63; //(in %) % of the ground coverage from the top of the default_asset
-  static canvas_margin = 64; //(in px) margin of the canvas
-  static text_padding = 4; //(in px) margin of the canvas
+  static canvas_margin = 64; //(in px) margin of the ctx
 
   static elements = {
     turn: document.getElementById("turn") as HTMLElement,
@@ -34,8 +33,8 @@ export class Display {
     "forest temple": 0.1,
   };
 
-  canvas_html: HTMLCanvasElement;
-  canvas: CanvasRenderingContext2D;
+  canvas: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D;
 
   map_size: Size;
   tile_height: number;
@@ -45,15 +44,15 @@ export class Display {
   constructor(size: Size) {
     this.map_size = size;
 
-    this.canvas_html = document.getElementById("canvas_html") as HTMLCanvasElement;
-    this.canvas_html.width = window.innerWidth;
-    this.canvas_html.height = window.innerHeight;
-    this.canvas = this.canvas_html.getContext("2d") as CanvasRenderingContext2D;
+    this.canvas = document.getElementById("canvas_html") as HTMLCanvasElement;
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+    this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
 
     let default_image: HTMLImageElement = assets[Display.default_asset] ?? new Image();
 
-    const max_height = this.canvas_html.height - Display.canvas_margin * 2;
-    const max_width = this.canvas_html.width - Display.canvas_margin * 2;
+    const max_height = this.canvas.height - Display.canvas_margin * 2;
+    const max_width = this.canvas.width - Display.canvas_margin * 2;
     this.tile_height = max_height / (this.map_size * Display.ratio_ground);
     this.tile_width = (default_image.width * this.tile_height) / default_image.height;
     if (this.tile_width * this.map_size > max_width) {
@@ -62,22 +61,24 @@ export class Display {
     }
     this.text_height = this.tile_height / 8;
 
-    this.canvas.font = `${this.text_height}px "Josefin Sans", sans-serif`;
-    this.canvas.textBaseline = "top";
+    this.ctx.font = `${this.text_height}px "Josefin Sans", sans-serif`;
+    this.ctx.textBaseline = "top";
+    this.ctx.shadowOffsetX = 1;
+    this.ctx.shadowOffsetY = 1;
   }
 
   _get_x(tile: TileGenerator | Tile) {
     let posX = tile.col - tile.row;
     let deltaX = (posX * this.tile_width) / 2;
-    return this.canvas_html.width / 2 - this.tile_width / 2 + deltaX;
+    return this.canvas.width / 2 - this.tile_width / 2 + deltaX;
   }
   _get_y(tile: TileGenerator | Tile) {
     let posY = tile.col + tile.row - (this.map_size - 1);
     let deltaY = (posY * (this.tile_height * Display.ratio_ground)) / 2;
-    return this.canvas_html.height / 2 - this.tile_height / 2 + deltaY;
+    return this.canvas.height / 2 - this.tile_height / 2 + deltaY;
   }
   _draw(tile: TileGenerator | Tile, image: HTMLImageElement, offsetY = 0) {
-    this.canvas.drawImage(
+    this.ctx.drawImage(
       image,
       this._get_x(tile),
       this._get_y(tile) - offsetY * this.tile_height,
@@ -88,49 +89,44 @@ export class Display {
 
   _drawCityName(city: City, tile: Tile) {
     const text = `${city.isCapital ? "👑 " : ""}${city.name} ⭐${city.stars_production}`;
-    const textWidth = this.canvas.measureText(text).width;
+    const textWidth = this.ctx.measureText(text).width;
+    const text_padding = this.text_height / 4;
 
-    const rw = textWidth + Display.text_padding;
-    const rh = this.text_height + Display.text_padding * 2;
+    const rw = textWidth + text_padding;
+    const rh = this.text_height + text_padding * 2;
     const x = this._get_x(tile) + this.tile_width / 2 - rw / 2;
     const y = this._get_y(tile) + (Display.ratio_ground / 2) * this.tile_height;
 
-    this.canvas.fillStyle = "rgba(54, 226, 170, 0.5)";
-    this.canvas.fillRect(x, y, rw, rh);
+    this.ctx.fillStyle = "rgba(54, 226, 170, 0.5)";
+    this.ctx.fillRect(x, y, rw, rh);
 
     this._toggleShadow();
-    this.canvas.fillStyle = "white";
-    this.canvas.fillText(text, x, y + Display.text_padding);
-    this._drawUnderline(city.name, x, y + Display.text_padding);
+    this.ctx.fillStyle = "white";
+    this.ctx.fillText(text, x, y + text_padding);
+    this._drawUnderline(city.name, x, y + text_padding);
     this._toggleShadow();
   }
 
   _toggleShadow() {
-    if (this.canvas.shadowOffsetX !== 1) {
-      this.canvas.shadowColor = "rgba(35, 28, 28, 0.8)";
-      this.canvas.shadowBlur = 0;
-      this.canvas.shadowOffsetX = 1;
-      this.canvas.shadowOffsetY = 1;
+    if (this.ctx.shadowColor !== "rgba(0, 0, 0, 0)") {
+      this.ctx.shadowColor = "rgba(0, 0, 0, 0)";
     } else {
-      this.canvas.shadowColor = "transparent";
-      this.canvas.shadowBlur = 0;
-      this.canvas.shadowOffsetX = 0;
-      this.canvas.shadowOffsetY = 0;
+      this.ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
     }
   }
 
   _drawUnderline(city_name: string, x: number, y: any) {
-    const width_name = this.canvas.measureText(city_name).width;
-    const margin_left = this.canvas.measureText("👑 ").width;
+    const width_name = this.ctx.measureText(city_name).width;
+    const margin_left = this.ctx.measureText("👑 ").width;
 
-    const underlineY = y + this.text_height + 0.5;
+    const underlineY = y + this.text_height;
     const underlineX = x + margin_left;
-    this.canvas.strokeStyle = "white";
-    this.canvas.lineWidth = 1;
-    this.canvas.beginPath();
-    this.canvas.moveTo(underlineX, underlineY);
-    this.canvas.lineTo(underlineX + width_name, underlineY);
-    this.canvas.stroke();
+    this.ctx.strokeStyle = "white";
+    this.ctx.lineWidth = this.text_height / 10;
+    this.ctx.beginPath();
+    this.ctx.moveTo(underlineX, underlineY);
+    this.ctx.lineTo(underlineX + width_name, underlineY);
+    this.ctx.stroke();
   }
 
   _drawTiles(map: MapGenerator | Map) {
@@ -182,7 +178,7 @@ export class Display {
   }
 
   drawMap(map: MapGenerator | Map) {
-    this.canvas.clearRect(0, 0, this.canvas_html.width, this.canvas_html.height);
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this._drawTiles(map);
     if (map instanceof Map) {
       this._drawBorderCities(map.cities);
