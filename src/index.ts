@@ -4,24 +4,46 @@ import { MapGenerator } from "./models/Generator/MapGenerator.js";
 import { Display } from "./models/Display.js";
 
 const generateButton = document.getElementById("generate") as HTMLButtonElement;
+const settings = document.getElementById("settings") as HTMLElement;
+const iaSettings = Array.from(document.getElementsByClassName("ia-settings")) as HTMLElement[];
+const info = document.getElementById("information") as HTMLElement;
+const historic = document.getElementById("historic") as HTMLElement;
+const map = document.getElementById("map-wrapper") as HTMLElement;
+
+
+
 const prevButton = document.getElementById("prev") as HTMLButtonElement;
 const nextButton = document.getElementById("next") as HTMLButtonElement;
 const runButton = document.getElementById("run") as HTMLButtonElement;
-const info = document.getElementById("information") as HTMLElement;
-const historic = document.getElementById("historic") as HTMLElement;
 
 let mapGeneration: MapGenerator | undefined;
 let display: Display | undefined;
 let state: State | undefined;
 
+Array.from(document.getElementsByName("decision")).forEach((choice) => {
+  choice.addEventListener("click", () => {
+    if ((choice as HTMLInputElement).value === "ia") iaSettings.forEach((el) => (el.style.display = "flex"));
+    else iaSettings.forEach((el) => (el.style.display = "none"));
+  });
+});
+
 generateButton.addEventListener("click", () => {
   mapGeneration = new MapGenerator();
   display = new Display(mapGeneration.size);
-  state = undefined;
 
   mapGeneration.generate();
   state = new State(mapGeneration, true);
-  startButtons();
+
+  offsetX = 0;
+  offsetY = 0;
+  scale = 1;
+
+  prevButton.disabled = true;
+  settings.style.display = "none";
+  info.style.display = "flex";
+  historic.style.display = "flex";
+  map.style.display = "flex";
+
   draw();
 });
 
@@ -57,15 +79,6 @@ runButton.addEventListener("click", () => {
 });
 
 document.addEventListener("DOMContentLoaded", get_assets);
-
-function startButtons() {
-  offsetX = 0;
-  offsetY = 0;
-  scale = 1;
-  prevButton.disabled = true;
-  info.style.visibility = "visible";
-  historic.style.visibility = "visible";
-}
 
 function changeDisablePrev() {
   if (state && state.historic.index === -1) prevButton.disabled = true;

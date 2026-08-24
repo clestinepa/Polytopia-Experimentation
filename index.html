@@ -11,35 +11,74 @@
   <body>
     <main>
       <div id="settings">
-        <button id="generate">Generate</button>
         <div class="radio_group">
-          <h4>Map size:</h4>
-          <input type="radio" id="tiny" name="map_size" value="11" checked /><label for="tiny">Tiny</label><br />
-          <input type="radio" id="small" name="map_size" value="14" /><label for="small">Small</label><br />
-          <input type="radio" id="normal" name="map_size" value="16" /><label for="normal">Normal</label><br />
-          <input type="radio" id="large" name="map_size" value="18" /><label for="large">Large</label><br />
-          <input type="radio" id="huge" name="map_size" value="20" /><label for="huge">Huge</label><br />
-          <input type="radio" id="massive" name="map_size" value="30" /><label for="massive">Massive</label>
+          <h3>Map size:</h3>
+          <div class="inputs default">
+            <input type="radio" id="tiny" name="map_size" value="11" checked /><label for="tiny">Tiny</label>
+            <input type="radio" id="small" name="map_size" value="14" /><label for="small">Small</label>
+            <input type="radio" id="normal" name="map_size" value="16" /><label for="normal">Normal</label>
+            <input type="radio" id="large" name="map_size" value="18" /><label for="large">Large</label>
+            <input type="radio" id="huge" name="map_size" value="20" /><label for="huge">Huge</label>
+            <input type="radio" id="massive" name="map_size" value="30" /><label for="massive">Massive</label>
+          </div>
         </div>
         <div class="radio_group">
-          <h4>IA:</h4>
-          <input type="radio" id="random" name="ia" value="random" checked /><label for="random">Random</label><br />
-          <input type="radio" id="mcts" name="ia" value="MCTS" /><label for="mcts">MCTS</label><br />
-          <input type="radio" id="beam" name="ia" value="beam search" /><label for="beam">BeamSearch</label><br />
+          <h3>Tribes:</h3>
+          <div class="inputs secondary">
+            <input type="radio" id="Xin-xi" name="tribes" value="Xin-xi" disabled /><label for="Xin-xi">Xin-xi</label>
+            <input type="radio" id="Imperius" name="tribes" value="Imperius" disabled /><label for="Imperius"
+              >Imperius</label
+            >
+            <input type="radio" id="Bardur" name="tribes" value="Bardur" disabled /><label for="Bardur">Bardur</label>
+            <input type="radio" id="Oumaji" name="tribes" value="Oumaji" disabled /><label for="Oumaji">Oumaji</label>
+            <input type="radio" id="Kickoo" name="tribes" value="Kickoo" disabled /><label for="Kickoo">Kickoo</label>
+            <input type="radio" id="Hoodrick" name="tribes" value="Hoodrick" disabled /><label for="Hoodrick"
+              >Hoodrick</label
+            >
+            <input type="radio" id="Luxidoor" name="tribes" value="Luxidoor" disabled /><label for="Luxidoor"
+              >Luxidoor</label
+            >
+            <input type="radio" id="Vengir" name="tribes" value="Vengir" disabled /><label for="Vengir">Vengir</label>
+            <input type="radio" id="Zebasi" name="tribes" value="Zebasi" disabled /><label for="Zebasi">Zebasi</label>
+            <input type="radio" id="Ai-Mo" name="tribes" value="Ai-Mo" checked /><label for="Ai-Mo">Ai-Mo</label>
+            <input type="radio" id="Quetzali" name="tribes" value="Quetzali" disabled /><label for="Quetzali"
+              >Quetzali</label
+            >
+            <input type="radio" id="Yădakk" name="tribes" value="Yădakk" disabled /><label for="Yădakk">Yădakk</label>
+          </div>
         </div>
         <div class="radio_group">
-          <h4>Debug verbose:</h4>
-          <input type="radio" id="on" name="verbose" value="true" /><label for="on">On</label><br />
-          <input type="radio" id="off" name="verbose" value="false" checked /><label for="off">Off</label><br />
+          <h3>Decision:</h3>
+          <div style="display: flex; align-items: center; gap: 16px">
+            <div class="inputs default">
+              <input type="radio" id="user" name="decision" value="user" /><label for="user">User</label>
+              <input type="radio" id="ia" name="decision" value="ia" checked /><label for="ia">IA</label>
+            </div>
+            <h4 class="ia-settings">:</h4>
+            <div class="ia-settings inputs default little">
+              <input type="radio" id="random" name="ia" value="random" checked /><label for="random">Random</label>
+              <input type="radio" id="mcts" name="ia" value="MCTS" /><label for="mcts">MCTS</label>
+              <input type="radio" id="beam" name="ia" value="beam search" /><label for="beam">BeamSearch</label>
+            </div>
+            <div class="ia-settings" style="display: flex; align-items: center">
+              <h4 style="margin-right: 8px">(Debug verbose:</h4>
+              <div class="inputs default little">
+                <input type="radio" id="on" name="verbose" value="true" /><label for="on">On</label>
+                <input type="radio" id="off" name="verbose" value="false" checked /><label for="off">Off</label>
+              </div>
+              <h4 style="margin-left: 4px">)</h4>
+            </div>
+          </div>
         </div>
+        <button id="generate">Play</button>
       </div>
-      <div id="information" class="info-game-elements" style="visibility: hidden">
+      <div id="information" class="info-game-elements" style="display: none">
         <h3>Turn: <span id="turn"></span></h3>
         <h4>Population: <span id="populations"></span></h4>
         <h4>Stars (+<span id="stars_production"></span>): <span id="stars"></span></h4>
         <h4>Points: <span id="points"></span></h4>
       </div>
-      <div id="historic" style="visibility: hidden">
+      <div id="historic" style="display: none">
         <div id="historic-content" class="info-game-elements">
           <h3>Actions:</h3>
           <div id="historic-display"></div>
@@ -54,7 +93,7 @@
       <div id="text_display" style="display: none">None</div>
     </main>
 
-    <div id="map-wrapper">
+    <div style="display: hidden" id="map-wrapper">
       <canvas id="canvas_html"></canvas>
     </div>
 
